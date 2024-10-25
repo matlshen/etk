@@ -2,6 +2,7 @@
 # Personal
 #######################
 *.sh
+*.DS_Store
 html/
 latex/
 
