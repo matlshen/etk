@@ -4,8 +4,10 @@
 #include "etk/__config.h"
 #include "etk/__thread/support.h"
 #include "etk/assert.h"
+#include <tuple>
+#include <utility>
 
-_ETK_BEGIN_NAMESPCE_ETK
+_ETK_BEGIN_NAMESPACE_ETK
 
 enum class Priority {
     Idle = -3,
@@ -104,16 +106,6 @@ Thread::Thread(ThreadAttributes &__attr, _Fp &&__func,
                   std::forward<_Args>(__args)...);
 }
 
-const char *Thread::getName() const { return __etk_thread_get_name(&__t_); }
-
-bool Thread::joinable() const { return !__etk_thread_isnull(&__t_); }
-
-void Thread::join() { __etk_thread_join(&__t_); }
-
-void Thread::detach() { __etk_thread_detach(&__t_); }
-
-Thread::Id Thread::getId() const { return __etk_thread_get_id(&__t_); }
-
-_ETK_END_NAMESPCE_ETK
+_ETK_END_NAMESPACE_ETK
 
 #endif // _ETK___THREAD_THERAD_H_

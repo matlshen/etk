@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-_ETK_BEGIN_NAMESPCE_ETK
+_ETK_BEGIN_NAMESPACE_ETK
 
 inline _ETK_API_INTERNAL bool __etk_assert(int expr, const char *msg,
                                            const char *file, const char *line) {
@@ -31,6 +31,6 @@ inline _ETK_API_INTERNAL void __etk_conditional_abort(bool condition) {
     }
 }
 
-_ETK_END_NAMESPCE_ETK
+_ETK_END_NAMESPACE_ETK
 
 #endif // __LIBECPP___ASSERT_SUPPORT_LINUX_H_

@@ -9,7 +9,39 @@ This is mostly stolen from libcxx with a few modifications.
 The following functionality must be provided by any implementation:
 
 
-_ETK_BEGIN_NAMESPCE_ETK
+_ETK_BEGIN_NAMESPACE_ETK
+
+//
+// Mutex
+//
+using __etk_mutex_t = ...;
+#define _ETK_MUTEX_INITIALIZER ...
+
+using __etk_recursive_mutex_t = ...;
+
+int __etk_recursive_mutex_init(__etk_recursive_mutex_t*);
+_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_recursive_mutex_lock(__etk_recursive_mutex_t*);
+_ETK_NO_THREAD_SAFETY_ANALYSIS bool __etk_recursive_mutex_trylock(__etk_recursive_mutex_t*);
+_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_recursive_mutex_unlock(__etk_recursive_mutex_t*);
+int __etk_recursive_mutex_destroy(__etk_recursive_mutex_t*);
+
+_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_mutex_lock(__etk_mutex_t*);
+_ETK_NO_THREAD_SAFETY_ANALYSIS bool __etk_mutex_trylock(__etk_mutex_t*);
+_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_mutex_unlock(__etk_mutex_t*);
+int __etk_mutex_destroy(__etk_mutex_t*);
+
+//
+// Condition Variable
+//
+using __etk_condvar_t = ...;
+#define _ETK_CONDVAR_INITIALIZER ...
+
+int __etk_condvar_signal(__etk_condvar_t*);
+int __etk_condvar_broadcast(__etk_condvar_t*);
+_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_condvar_wait(__etk_condvar_t*, __etk_mutex_t*);
+_ETK_NO_THREAD_SAFETY_ANALYSIS
+int __etk_condvar_timedwait(__etk_condvar_t*, __etk_mutex_t*, __etk_timespec_t*);
+int __etk_condvar_destroy(__etk_condvar_t*);
 
 //
 // Thread ID
@@ -39,14 +71,14 @@ void __etk_thread_yield();
 //
 // Thread local storage
 //
-#define _LIBCPP_TLS_DESTRUCTOR_CC ...
-using __libcpp_tls_key = ...;
+#define _ETK_TLS_DESTRUCTOR_CC ...
+using __etk_tls_key = ...;
 
-int __libcpp_tls_create(__libcpp_tls_key*, void (*__at_exit)(void*));
-void* __libcpp_tls_get(__libcpp_tls_key);
-int __libcpp_tls_set(__libcpp_tls_key, void*);
+int __etk_tls_create(__etk_tls_key*, void (*__at_exit)(void*));
+void* __etk_tls_get(__etk_tls_key);
+int __etk_tls_set(__etk_tls_key, void*);
 
-_ETK_END_NAMESPCE_ETK
+_ETK_END_NAMESPACE_ETK
 */
 
 #if defined(_ETK_HAS_THREAD_API_PTHREAD)

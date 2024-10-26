@@ -5,7 +5,7 @@
 #include "etk/assert.h"
 #include <pthread.h>
 
-_ETK_BEGIN_NAMESPCE_ETK
+_ETK_BEGIN_NAMESPACE_ETK
 
 //
 // Mutex
@@ -20,7 +20,7 @@ inline _ETK_API_INTERNAL int __etk_mutex_init(__etk_recursive_mutex_t *__m) {
     int __ec = pthread_mutexattr_init(&__attr);
     if (__ec)
         return __ec;
-    __ec = pthread_mutexattr_settype(&__attr, PTHREAD_MUTEX_RECURSIVE);
+    __ec = pthread_mutexattr_settype(&__attr, PTHREAD_MUTEX_NORMAL);
     if (__ec) {
         pthread_mutexattr_destroy(&__attr);
         return __ec;
@@ -72,6 +72,32 @@ inline _ETK_API_INTERNAL int __etk_mutex_unlock(__etk_mutex_t *__m) {
 
 inline _ETK_API_INTERNAL int __etk_mutex_destroy(__etk_mutex_t *__m) {
     return pthread_mutex_destroy(__m);
+}
+
+//
+// Condition Variable
+//
+typedef pthread_cond_t __etk_condvar_t;
+#define _LIBCPP_CONDVAR_INITIALIZER PTHREAD_COND_INITIALIZER
+
+inline _ETK_API_INTERNAL int __etk_condvar_signal(__etk_condvar_t* __cv) { return pthread_cond_signal(__cv); }
+
+inline _ETK_API_INTERNAL int __etk_condvar_broadcast(__etk_condvar_t* __cv) {
+  return pthread_cond_broadcast(__cv);
+}
+
+inline _ETK_API_INTERNAL _LIBCPP_NO_THREAD_SAFETY_ANALYSIS int
+__etk_condvar_wait(__etk_condvar_t* __cv, __etk_mutex_t* __m) {
+  return pthread_cond_wait(__cv, __m);
+}
+
+inline _ETK_API_INTERNAL _LIBCPP_NO_THREAD_SAFETY_ANALYSIS int
+__etk_condvar_timedwait(__etk_condvar_t* __cv, __etk_mutex_t* __m, __etk_timespec_t* __ts) {
+  return pthread_cond_timedwait(__cv, __m, __ts);
+}
+
+inline _ETK_API_INTERNAL int __etk_condvar_destroy(__etk_condvar_t* __cv) {
+  return pthread_cond_destroy(__cv);
 }
 
 //
@@ -178,6 +204,6 @@ inline _ETK_API_INTERNAL int __etk_thread_detach(__etk_thread_t *__t) {
 
 inline _ETK_API_INTERNAL void __etk_thread_yield() { sched_yield(); }
 
-_ETK_END_NAMESPCE_ETK
+_ETK_END_NAMESPACE_ETK
 
 #endif // _ETK___THREAD_SUPPORT_PTHREAD_H_
