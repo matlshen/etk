@@ -6,23 +6,23 @@
 
 _ETK_BEGIN_NAMESPACE_ETK
 
-class Mutex {
+class mutex {
     __etk_mutex_t __m_ = _ETK_MUTEX_INITIALIZER;
 
   public:
-    Mutex() noexcept;
-    ~Mutex() noexcept;
+    mutex() noexcept;
+    ~mutex() noexcept;
 
-    // Copying not allowed
-    Mutex(const Mutex &) = delete;
-    Mutex &operator=(const Mutex &) = delete;
+    // Do not allow copying
+    mutex(const mutex &) = delete;
+    mutex &operator=(const mutex &) = delete;
 
     void lock();
-    bool tryLock();
+    bool try_lock();
     void unlock();
 
-    // Alias for tryLock for compatibility with std locks
-    inline bool try_lock() { return tryLock(); }
+    typedef __etk_mutex_t *native_handle_type;
+    native_handle_type native_handle() noexcept;
 };
 
 _ETK_END_NAMESPACE_ETK

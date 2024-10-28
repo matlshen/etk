@@ -12,7 +12,7 @@ The following functionality must be provided by any implementation:
 _ETK_BEGIN_NAMESPACE_ETK
 
 //
-// Mutex
+// mutex
 //
 using __etk_mutex_t = ...;
 #define _ETK_MUTEX_INITIALIZER ...
@@ -20,10 +20,13 @@ using __etk_mutex_t = ...;
 using __etk_recursive_mutex_t = ...;
 
 int __etk_recursive_mutex_init(__etk_recursive_mutex_t*);
-_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_recursive_mutex_lock(__etk_recursive_mutex_t*);
-_ETK_NO_THREAD_SAFETY_ANALYSIS bool __etk_recursive_mutex_trylock(__etk_recursive_mutex_t*);
-_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_recursive_mutex_unlock(__etk_recursive_mutex_t*);
-int __etk_recursive_mutex_destroy(__etk_recursive_mutex_t*);
+_ETK_NO_THREAD_SAFETY_ANALYSIS int
+__etk_recursive_mutex_lock(__etk_recursive_mutex_t*);
+_ETK_NO_THREAD_SAFETY_ANALYSIS bool
+__etk_recursive_mutex_trylock(__etk_recursive_mutex_t*);
+_ETK_NO_THREAD_SAFETY_ANALYSIS int
+__etk_recursive_mutex_unlock(__etk_recursive_mutex_t*); int
+__etk_recursive_mutex_destroy(__etk_recursive_mutex_t*);
 
 _ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_mutex_lock(__etk_mutex_t*);
 _ETK_NO_THREAD_SAFETY_ANALYSIS bool __etk_mutex_trylock(__etk_mutex_t*);
@@ -38,9 +41,9 @@ using __etk_condvar_t = ...;
 
 int __etk_condvar_signal(__etk_condvar_t*);
 int __etk_condvar_broadcast(__etk_condvar_t*);
-_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_condvar_wait(__etk_condvar_t*, __etk_mutex_t*);
-_ETK_NO_THREAD_SAFETY_ANALYSIS
-int __etk_condvar_timedwait(__etk_condvar_t*, __etk_mutex_t*, __etk_timespec_t*);
+_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_condvar_wait(__etk_condvar_t*,
+__etk_mutex_t*); _ETK_NO_THREAD_SAFETY_ANALYSIS int
+__etk_condvar_timedwait(__etk_condvar_t*, __etk_mutex_t*, __etk_timespec_t*);
 int __etk_condvar_destroy(__etk_condvar_t*);
 
 //

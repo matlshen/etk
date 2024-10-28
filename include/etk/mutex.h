@@ -3,5 +3,6 @@
 
 #include "etk/__config.h"
 #include "etk/__mutex/mutex.h"
+#include "etk/__mutex/unique_lock.h"
 
 #endif // __ETK_MUTEX_H_

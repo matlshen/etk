@@ -6,41 +6,41 @@
 
 int global;
 
-TEST(TestMutex, MutexCreation) {
-    etk::Mutex m;
+TEST(Testmutex, mutexCreation) {
+    etk::mutex m;
     m.lock();
     m.unlock();
 }
 
-void threadRunner(etk::Mutex *m) {
+void threadRunner(etk::mutex *m) {
     m->lock();
     m->unlock();
     m->lock();
     m->unlock();
 }
-TEST(TestMutex, MutexLock) {
-    etk::Mutex m;
-    etk::ThreadAttributes attr;
-    etk::Thread t1(attr, threadRunner, &m);
+TEST(Testmutex, mutexLock) {
+    etk::mutex m;
+    etk::thread_attributes attr;
+    etk::thread t1(attr, threadRunner, &m);
     t1.join();
 }
 
-void threadRunner2(etk::Mutex *m) {
-    bool locked = m->tryLock();
+void threadRunner2(etk::mutex *m) {
+    bool locked = m->try_lock();
     EXPECT_EQ(locked, true);
-    locked = m->tryLock();
+    locked = m->try_lock();
     EXPECT_EQ(locked, false);
     m->unlock();
 }
-TEST(TestMutex, MutexTryLock) {
-    etk::Mutex m;
-    etk::ThreadAttributes attr;
-    etk::Thread t1(attr, threadRunner2, &m);
+TEST(Testmutex, mutexTryLock) {
+    etk::mutex m;
+    etk::thread_attributes attr;
+    etk::thread t1(attr, threadRunner2, &m);
     t1.join();
 }
 
-void uniqueTryLock(etk::Mutex *m) {
-    std::unique_lock<etk::Mutex> lock(*m, std::try_to_lock);
+void uniqueTryLock(etk::mutex *m) {
+    std::unique_lock<etk::mutex> lock(*m, std::try_to_lock);
     // Random delay
     for (volatile long i = 0; i < 100000; i++)
         ;
@@ -48,13 +48,13 @@ void uniqueTryLock(etk::Mutex *m) {
         global++;
     }
 }
-TEST(TestMutex, UniqueLock) {
+TEST(Testmutex, unique_lock) {
     global = 0;
 
-    etk::ThreadAttributes attr;
-    etk::Mutex m;
-    etk::Thread t1(attr, uniqueTryLock, &m);
-    etk::Thread t2(attr, uniqueTryLock, &m);
+    etk::thread_attributes attr;
+    etk::mutex m;
+    etk::thread t1(attr, uniqueTryLock, &m);
+    etk::thread t2(attr, uniqueTryLock, &m);
 
     t1.join();
     t2.join();

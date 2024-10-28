@@ -12,9 +12,11 @@
 
 // Platform specific configuration
 #define _ETK_HAS_ASSERT_API_LINUX
+// #define _ETK_HAS_THREAD_API_NONE
 #define _ETK_HAS_THREAD_API_PTHREAD
+// #define _ETK_HAS_THREAD_API_THREADX
 
 // Library configuration
-#define _ETK_THREAD_FUNC_MAX_SIZE 32
+#define _ETK_THREAD_FUNC_MAX_SIZE 64
 
 #endif // __LIBEXPP___CONFIG_H_

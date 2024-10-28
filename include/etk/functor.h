@@ -14,14 +14,14 @@ template <class _Fp> class Functor {
   public:
     /**
      * @brief Construct a new Functor object.
-     * 
+     *
      * @tparam __f Pointer to underlying callable object.
      */
     Functor(_Fp &&__f) : __c_(std::forward<_Fp>(__f)) {}
 
     /**
      * @brief Call the callable
-     * 
+     *
      * @tparam __args arguments to pass to the callable object.
      * @return Return value of the callable object.
      */
@@ -37,14 +37,14 @@ template <class... _Args> class FunctorArgs {
   public:
     /**
      * @brief Construct a new FunctorArgs object.
-     * 
+     *
      * @tparam __args Arguments to pass to the functor.
      */
     FunctorArgs(_Args &&...__args) : __args_(std::forward<_Args>(__args)...) {}
 
     /**
      * @brief Get the arguments.
-     * 
+     *
      * @return std::tuple<_Args...> of arguments.
      */
     auto getArgs() const -> std::tuple<_Args...> { return __args_; }
@@ -54,7 +54,7 @@ class FunctorCaller {
   public:
     /**
      * @brief Call a functor with arguments.
-     * 
+     *
      * @tparam __fc Functor object
      * @tparam __args FunctorArgs object
      * @return Functor return value.
@@ -68,7 +68,7 @@ class FunctorCaller {
 
     /**
      * @brief Call a functor with no arguments.
-     * 
+     *
      * @tparam __fc Functor object.
      * @return Functor return value.
      */

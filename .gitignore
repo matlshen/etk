@@ -3,6 +3,7 @@
 #######################
 *.sh
 *.DS_Store
+*.txt
 *.vscode/
 html/
 latex/

@@ -2,14 +2,26 @@
 
 _ETK_BEGIN_NAMESPACE_ETK
 
-const char *Thread::getName() const { return __etk_thread_get_name(&__t_); }
+const char *thread::get_name() const noexcept {
+    return __etk_thread_get_name(&__t_);
+}
 
-bool Thread::joinable() const { return !__etk_thread_isnull(&__t_); }
+bool thread::joinable() const noexcept { return !__etk_thread_isnull(&__t_); }
 
-void Thread::join() { __etk_thread_join(&__t_); }
+void thread::join() { __etk_thread_join(&__t_); }
 
-void Thread::detach() { __etk_thread_detach(&__t_); }
+void thread::detach() { __etk_thread_detach(&__t_); }
 
-Thread::Id Thread::getId() const { return __etk_thread_get_id(&__t_); }
+thread::id thread::get_id() const noexcept {
+    return __etk_thread_get_id(&__t_);
+}
+
+namespace this_thread {
+
+void msleep(unsigned int __ms) { __etk_thread_msleep(__ms); }
+
+void usleep(unsigned int __us) { __etk_thread_msleep(__us / 1000); }
+
+} // namespace this_thread
 
 _ETK_END_NAMESPACE_ETK
