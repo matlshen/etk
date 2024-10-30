@@ -4,7 +4,7 @@ project(etk LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-option(BUILD_ETK_TESTS "Build unit tests" ON)
+option(BUILD_ETK_TESTS "Build unit tests" OFF)
 option(INTERNAL_ASSERTIONS "Enable internal assertions" ON)
 
 Include(FetchContent)

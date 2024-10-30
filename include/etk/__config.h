@@ -12,6 +12,8 @@
 
 // Platform specific configuration
 #define _ETK_HAS_ASSERT_API_LINUX
+
+
 // #define _ETK_HAS_THREAD_API_NONE
 #define _ETK_HAS_THREAD_API_PTHREAD
 // #define _ETK_HAS_THREAD_API_THREADX
