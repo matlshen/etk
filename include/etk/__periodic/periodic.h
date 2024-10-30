@@ -16,7 +16,7 @@ template <size_t N> class PeriodicScheduler {
   public:
     template <class _Fp, class... _Args>
     void addTask(uint32_t __period_ms, _Fp &&__func, _Args &&...__args) {
-        Functor<_Fp> task(std::forward<_Fp>(__func));
+        functor<_Fp> task(std::forward<_Fp>(__func));
         __tasks_[__task_count_++] = task;
     }
 

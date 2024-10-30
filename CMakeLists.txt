@@ -7,13 +7,13 @@ set(CMAKE_CXX_STANDARD 17)
 option(BUILD_ETK_TESTS "Build unit tests" ON)
 option(INTERNAL_ASSERTIONS "Enable internal assertions" ON)
 
-# Include(FetchContent)
-# FetchContent_Declare(
-#     etl
-#     GIT_REPOSITORY https://github.com/ETLCPP/etl
-#     GIT_TAG        20.39.4
-# )
-# FetchContent_MakeAvailable(etl)
+Include(FetchContent)
+FetchContent_Declare(
+    etl
+    GIT_REPOSITORY https://github.com/ETLCPP/etl
+    GIT_TAG        20.39.4
+)
+FetchContent_MakeAvailable(etl)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wextra -Wpedantic -Werror")
 
@@ -24,9 +24,12 @@ file(GLOB_RECURSE SRC_FILES src/*.cpp)
 add_library(${PROJECT_NAME} ${SRC_FILES})
 add_library(etk::etk ALIAS ${PROJECT_NAME})
 
-target_include_directories(${PROJECT_NAME} PUBLIC include ../etl/include)
-
-# target_link_libraries(${PROJECT_NAME} PRIVATE etl::etl)
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC
+    include
+    ${etl_SOURCE_DIR}/include
+)
+target_link_libraries(${PROJECT_NAME} PRIVATE etl::etl)
 
 if (BUILD_ETK_TESTS)
     add_subdirectory(test)

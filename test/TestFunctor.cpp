@@ -14,22 +14,22 @@ void funcSet2Args(int a, int b) {
 
 int funcReturnArg(int a) { return a; }
 
-TEST(TestFunctor, NoArgs) {
-    etk::Functor f(funcSet10);
+TEST(Testfunctor, NoArgs) {
+    etk::functor f(funcSet10);
     f();
     EXPECT_EQ(global1, 10);
 }
 
-TEST(TestFunctor, OneArg) {
-    etk::Functor f(funcSetArg);
+TEST(Testfunctor, OneArg) {
+    etk::functor f(funcSetArg);
     f(20);
     EXPECT_EQ(global1, 20);
     f(30);
     EXPECT_EQ(global1, 30);
 }
 
-TEST(TestFunctor, TwoArgs) {
-    etk::Functor f(funcSet2Args);
+TEST(Testfunctor, TwoArgs) {
+    etk::functor f(funcSet2Args);
     f(40, 50);
     EXPECT_EQ(global1, 40);
     EXPECT_EQ(global2, 50);
@@ -38,35 +38,50 @@ TEST(TestFunctor, TwoArgs) {
     EXPECT_EQ(global2, 70);
 }
 
-TEST(TestFunctor, ReturnArg) {
-    etk::Functor f(funcReturnArg);
+TEST(Testfunctor, ReturnArg) {
+    etk::functor f(funcReturnArg);
     EXPECT_EQ(f(80), 80);
     EXPECT_EQ(f(90), 90);
 }
 
-TEST(TestFunctor, FunctorCallerNoArgs) {
-    etk::Functor f(funcSet10);
-    etk::FunctorCaller::call(f);
+TEST(Testfunctor, functorCallerNoArgs) {
+    etk::functor f(funcSet10);
+    etk::functorCaller::call(f);
     EXPECT_EQ(global1, 10);
 }
 
-TEST(TestFunctor, FunctorCallerOneArg) {
-    etk::Functor f(funcSetArg);
-    etk::FunctorArgs args(100);
-    etk::FunctorCaller::call(f, args);
+TEST(Testfunctor, functorCallerOneArg) {
+    etk::functor f(funcSetArg);
+    etk::functorArgs args(100);
+    etk::functorCaller::call(f, args);
     EXPECT_EQ(global1, 100);
 }
 
-TEST(TestFunctor, FunctorCallerReturnArg) {
-    etk::Functor f(funcReturnArg);
-    etk::FunctorArgs args(110);
-    EXPECT_EQ(etk::FunctorCaller::call(f, args), 110);
+TEST(Testfunctor, functorCallerReturnArg) {
+    etk::functor f(funcReturnArg);
+    etk::functorArgs args(110);
+    EXPECT_EQ(etk::functorCaller::call(f, args), 110);
 }
 
-TEST(TestFunctor, FunctorCallerTwoArgs) {
-    etk::Functor f(funcSet2Args);
-    etk::FunctorArgs args(120, 130);
-    etk::FunctorCaller::call(f, args);
+TEST(Testfunctor, functorCallerTwoArgs) {
+    etk::functor f(funcSet2Args);
+    etk::functorArgs args(120, 130);
+    etk::functorCaller::call(f, args);
     EXPECT_EQ(global1, 120);
     EXPECT_EQ(global2, 130);
+}
+
+TEST(TestFunctor, FunctorEmpty) {
+    etk::functor<void()> f;
+    f();
+    f = funcSet10;
+    f();
+    EXPECT_EQ(global1, 10);
+}
+
+TEST(TestFunctor, TestLambda) {
+    int a = 0;
+    etk::functor f([&a]() { a = 10; });
+    f();
+    EXPECT_EQ(a, 10);
 }

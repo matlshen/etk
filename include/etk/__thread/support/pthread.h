@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <sched.h>
 #include <unistd.h>
+#include <time.h>
 
 _ETK_BEGIN_NAMESPACE_ETK
 
@@ -205,6 +206,19 @@ inline _ETK_API_INTERNAL void __etk_thread_yield() { sched_yield(); }
 
 inline _ETK_API_INTERNAL void __etk_thread_msleep(unsigned int __ms) {
     usleep(__ms * 1000);
+}
+
+static struct timespec __etk_start_time, __etk_end_time;
+
+inline _ETK_API_INTERNAL void __etk_thread_time_start() {
+    clock_gettime(CLOCK_MONOTONIC, &__etk_start_time);
+}
+
+inline _ETK_API_INTERNAL unsigned int __etk_thread_time_get() {
+    clock_gettime(CLOCK_MONOTONIC, &__etk_end_time);
+    long __seconds = __etk_end_time.tv_sec - __etk_start_time.tv_sec;
+    long __ns = __etk_end_time.tv_nsec - __etk_start_time.tv_nsec;
+    return __seconds * 1000 + __ns / 1000000;
 }
 
 _ETK_END_NAMESPACE_ETK

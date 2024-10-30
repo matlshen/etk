@@ -53,6 +53,7 @@ namespace this_thread {
  */
 
 #include "etk/__config.h"
+#include "etk/__thread/os.h"
 #include "etk/__thread/this_thread.h"
 #include "etk/__thread/thread.h"
 

@@ -24,4 +24,12 @@ void usleep(unsigned int __us) { __etk_thread_msleep(__us / 1000); }
 
 } // namespace this_thread
 
+namespace os {
+
+void time_start() { __etk_thread_time_start(); }
+
+unsigned int time_get() { return __etk_thread_time_get(); }
+
+} // namespace os
+
 _ETK_END_NAMESPACE_ETK
