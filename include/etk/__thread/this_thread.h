@@ -19,11 +19,22 @@ inline void yield() noexcept { __etk_thread_yield(); }
 /**
  * Additional functions
  */
-void msleep(unsigned int __ms);
+inline void msleep(unsigned int __ms) { __etk_thread_msleep(__ms); }
 
-void usleep(unsigned int __us);
+inline void usleep(unsigned int __us) { __etk_thread_msleep(__us / 1000); }
 
 } // namespace this_thread
+
+/**
+ * Additional OS utility functions
+ */
+namespace os {
+
+inline void time_start() { __etk_thread_time_start(); }
+
+inline unsigned int time_get() { return __etk_thread_time_get(); }
+
+} // namespace os
 
 _ETK_END_NAMESPACE_ETK
 

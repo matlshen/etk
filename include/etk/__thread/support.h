@@ -6,7 +6,10 @@
 /*
 The library provides support for multiple threading implementations.
 This is mostly stolen from libcxx with a few modifications.
+- Function for non-recursive mutex init
+- thread_create takes additional attributes such as name, priority, stack space
 The following functionality must be provided by any implementation:
+- Remove execute once and thread local storage support
 
 
 _ETK_BEGIN_NAMESPACE_ETK
@@ -17,21 +20,33 @@ _ETK_BEGIN_NAMESPACE_ETK
 using __etk_mutex_t = ...;
 #define _ETK_MUTEX_INITIALIZER ...
 
+int __etk_mutex_init(__etk_mutex_t*);
+int __etk_mutex_lock(__etk_mutex_t*);
+bool __etk_mutex_trylock(__etk_mutex_t*);
+int __etk_mutex_unlock(__etk_mutex_t*);
+int __etk_mutex_destroy(__etk_mutex_t*);
+
 using __etk_recursive_mutex_t = ...;
 
 int __etk_recursive_mutex_init(__etk_recursive_mutex_t*);
-_ETK_NO_THREAD_SAFETY_ANALYSIS int
-__etk_recursive_mutex_lock(__etk_recursive_mutex_t*);
-_ETK_NO_THREAD_SAFETY_ANALYSIS bool
-__etk_recursive_mutex_trylock(__etk_recursive_mutex_t*);
-_ETK_NO_THREAD_SAFETY_ANALYSIS int
-__etk_recursive_mutex_unlock(__etk_recursive_mutex_t*); int
-__etk_recursive_mutex_destroy(__etk_recursive_mutex_t*);
+int __etk_recursive_mutex_lock(__etk_recursive_mutex_t*);
+bool __etk_recursive_mutex_trylock(__etk_recursive_mutex_t*);
+int __etk_recursive_mutex_unlock(__etk_recursive_mutex_t*);
+int __etk_recursive_mutex_destroy(__etk_recursive_mutex_t*);
 
-_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_mutex_lock(__etk_mutex_t*);
-_ETK_NO_THREAD_SAFETY_ANALYSIS bool __etk_mutex_trylock(__etk_mutex_t*);
-_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_mutex_unlock(__etk_mutex_t*);
-int __etk_mutex_destroy(__etk_mutex_t*);
+
+//
+// Semaphore
+//
+using __etk_semaphore_t = ...;
+#define _ETK_SEMAPHORE_INITIALIZER ...
+
+int __etk_semaphore_init(__etk_semaphore_t*, unsigned int);
+int __etk_semaphore_post(__etk_semaphore_t*);
+int __etk_semaphore_wait(__etk_semaphore_t*);
+bool __etk_semaphore_trywait(__etk_semaphore_t*);
+int __etk_semaphore_getvalue(__etk_semaphore_t*, int*);
+int __etk_semaphore_destroy(__etk_semaphore_t*);
 
 //
 // Condition Variable
@@ -41,9 +56,9 @@ using __etk_condvar_t = ...;
 
 int __etk_condvar_signal(__etk_condvar_t*);
 int __etk_condvar_broadcast(__etk_condvar_t*);
-_ETK_NO_THREAD_SAFETY_ANALYSIS int __etk_condvar_wait(__etk_condvar_t*,
-__etk_mutex_t*); _ETK_NO_THREAD_SAFETY_ANALYSIS int
-__etk_condvar_timedwait(__etk_condvar_t*, __etk_mutex_t*, __etk_timespec_t*);
+int __etk_condvar_wait(__etk_condvar_t*, __etk_mutex_t*);
+int __etk_condvar_timedwait(__etk_condvar_t*, __etk_mutex_t*,
+                            __etk_timespec_t*);
 int __etk_condvar_destroy(__etk_condvar_t*);
 
 //
@@ -71,21 +86,12 @@ int __etk_thread_join(__etk_thread_t*);
 int __etk_thread_detach(__etk_thread_t*);
 void __etk_thread_yield();
 
-//
-// Thread local storage
-//
-#define _ETK_TLS_DESTRUCTOR_CC ...
-using __etk_tls_key = ...;
-
-int __etk_tls_create(__etk_tls_key*, void (*__at_exit)(void*));
-void* __etk_tls_get(__etk_tls_key);
-int __etk_tls_set(__etk_tls_key, void*);
 
 _ETK_END_NAMESPACE_ETK
 */
 
-#if defined(_ETK_HAS_THREAD_API_PTHREAD)
-#include "etk/__thread/support/pthread.h"
+#if defined(_ETK_HAS_THREAD_API_APPLE)
+#include "etk/__thread/support/apple.h"
 #elif defined(_ETK_HAS_THREAD_API_THREADX)
 #include "etk/__thread/support/threadx.h"
 #else

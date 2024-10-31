@@ -7,15 +7,18 @@
 
 _ETK_BEGIN_NAMESPACE_ETK
 
-class counting_semaphore {
+class semaphore {
+  private:
+#if defined(_ETK_HAS_NATIVE_SEMAPHORE)
+    __etk_semaphore_t __sem_ = _ETK_SEMAPHORE_INITIALIZER;
+#endif
   public:
-    counting_semaphore(unsigned int initial) noexcept;
-    counting_semaphore(unsigned int max, unsigned int initial) noexcept;
-    ~counting_semaphore() noexcept = default;
+    semaphore(unsigned int initial) noexcept;
+    ~semaphore() noexcept = default;
 
     // Do not allow copying
-    counting_semaphore(const counting_semaphore &) = delete;
-    counting_semaphore &operator=(const counting_semaphore &) = delete;
+    semaphore(const semaphore &) = delete;
+    semaphore &operator=(const semaphore &) = delete;
 
     void wait();
     bool try_wait();
@@ -24,19 +27,18 @@ class counting_semaphore {
     unsigned int count();
 
   private:
+#if !defined(_ETK_HAS_NATIVE_SEMAPHORE)
     unsigned int __count_;
-    unsigned int __max_;
     condition_variable cond_var_;
     mutex mutex_;
+#endif
 };
 
-class binary_semaphore : public counting_semaphore {
-  public:
-    binary_semaphore(unsigned int initial) noexcept
-        : counting_semaphore(1, initial) {}
-};
-
-using semaphore = counting_semaphore;
+#if defined(_ETK_HAS_NATIVE_SEMAPHORE)
+#include "etk/__semaphore/native_semaphore_impl.cpp"
+#else
+#include "etk/__semaphore/semaphore_impl.cpp"
+#endif
 
 _ETK_END_NAMESPACE_ETK
 

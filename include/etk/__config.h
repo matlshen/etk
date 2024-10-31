@@ -13,12 +13,38 @@
 // Platform specific configuration
 #define _ETK_HAS_ASSERT_API_LINUX
 
+/**
+ * Threading configuations
+ * Currently supported threading APIs:
+ * - None
+ * - Pthread
+ * - ThreadX
+ */
+// # define _ETK_HAS_THREAD_API_NONE
+// # define _ETK_HAS_THREAD_API_PTHREAD
+# define _ETK_HAS_THREAD_API_APPLE
+// # define _ETK_HAS_THREAD_API_THREADX
 
-// #define _ETK_HAS_THREAD_API_NONE
-#define _ETK_HAS_THREAD_API_PTHREAD
-// #define _ETK_HAS_THREAD_API_THREADX
+# if defined(_ETK_HAS_THREAD_API_PTHREAD)
+#   define _ETK_HAS_NATIVE_MUTEX
+#   define _ETK_HAS_NATIVE_SEMAPHORE
+#   define _ETK_HAS_NATIVE_CONDVAR
+//#   define _ETK_HAS_NATIVE_EVTFLG
+//#   define _ETK_HAS_NATIVE_TIMER
+# elif defined(_ETK_HAS_THREAD_API_APPLE)
+#   define _ETK_HAS_NATIVE_MUTEX
+// #   define _ETK_HAS_NATIVE_SEMAPHORE
+#   define _ETK_HAS_NATIVE_CONDVAR
+//#   define _ETK_HAS_NATIVE_EVTFLG
+//#   define _ETK_HAS_NATIVE_TIMER
+# elif defined(_ETK_HAS_THREAD_API_THREADX)
+#   define _ETK_HAS_NATIVE_MUTEX
+#   define _ETK_HAS_NATIVE_SEMAPHORE
+//#   define _ETK_HAS_NATIVE_CONDVAR
+#   define _ETK_HAS_NATIVE_EVTFLG
+#   define _ETK_HAS_NATIVE_TIMER
+# endif
 
-// Library configuration
-#define _ETK_THREAD_FUNC_MAX_SIZE 64
+# define _ETK_THREAD_FUNC_MAX_SIZE 64
 
 #endif // __LIBEXPP___CONFIG_H_

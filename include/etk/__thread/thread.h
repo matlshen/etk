@@ -87,6 +87,36 @@ class thread {
     static void *__callAdapter_(void *arg) noexcept;
 };
 
+// Class function definitions
+template <class _Fp, class... _Args>
+thread::thread(_Fp &&__func, _Args &&...__args) noexcept {
+    thread_attributes __attr;
+    __commonCtor_(__attr, std::forward<_Fp>(__func),
+                  std::forward<_Args>(__args)...);
+}
+
+template <class _Fp, class... _Args>
+thread::thread(thread_attributes &__attr, _Fp &&__func,
+               _Args &&...__args) noexcept {
+    __commonCtor_(__attr, std::forward<_Fp>(__func),
+                  std::forward<_Args>(__args)...);
+}
+
+bool thread::joinable() const noexcept { return !__etk_thread_isnull(&__t_); }
+
+void thread::join() { __etk_thread_join(&__t_); }
+
+void thread::detach() { __etk_thread_detach(&__t_); }
+
+thread::id thread::get_id() const noexcept {
+    return __etk_thread_get_id(&__t_);
+}
+
+const char *thread::get_name() const noexcept {
+    return __etk_thread_get_name(&__t_);
+}
+
+// Utility function definitions
 template <class _Fp, class... _Args>
 void thread::__commonCtor_(thread_attributes &__attr, _Fp &&__func,
                            _Args &&...__args) noexcept {
@@ -112,20 +142,6 @@ void *thread::__callAdapter_(void *arg) noexcept {
         },
         *__ct);
     return nullptr;
-}
-
-template <class _Fp, class... _Args>
-thread::thread(_Fp &&__func, _Args &&...__args) noexcept {
-    thread_attributes __attr;
-    __commonCtor_(__attr, std::forward<_Fp>(__func),
-                  std::forward<_Args>(__args)...);
-}
-
-template <class _Fp, class... _Args>
-thread::thread(thread_attributes &__attr, _Fp &&__func,
-               _Args &&...__args) noexcept {
-    __commonCtor_(__attr, std::forward<_Fp>(__func),
-                  std::forward<_Args>(__args)...);
 }
 
 _ETK_END_NAMESPACE_ETK
