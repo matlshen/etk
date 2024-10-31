@@ -8,7 +8,6 @@
 
 _ETK_BEGIN_NAMESPACE_ETK
 
-class PeriodicTask {};
 
 template <size_t N> class PeriodicScheduler {
     char __fbuf_[_ETK_THREAD_FUNC_MAX_SIZE * N];

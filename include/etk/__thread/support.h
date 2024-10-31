@@ -8,8 +8,9 @@ The library provides support for multiple threading implementations.
 This is mostly stolen from libcxx with a few modifications.
 - Function for non-recursive mutex init
 - thread_create takes additional attributes such as name, priority, stack space
-The following functionality must be provided by any implementation:
 - Remove execute once and thread local storage support
+
+The following functionality must be provided by any implementation:
 
 
 _ETK_BEGIN_NAMESPACE_ETK
@@ -84,7 +85,21 @@ __etk_thread_id __etk_thread_get_current_id();
 __etk_thread_id __etk_thread_get_id(const __etk_thread_t*);
 int __etk_thread_join(__etk_thread_t*);
 int __etk_thread_detach(__etk_thread_t*);
-void __etk_thread_yield();
+void __etk_thread_entry(__etk_thread_t*);
+void __etk_thread_exit(__etk_thread_t*);
+
+//
+// this_thread
+//
+void __etk_thread_yeild();
+void __etk_thread_msleep(unsigned int);
+void __etk_thread_usleep(unsigned int);
+
+//
+// os
+//
+void __etk_thread_time_start();
+unsigned int __etk_thread_time_get();
 
 
 _ETK_END_NAMESPACE_ETK

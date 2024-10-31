@@ -3,7 +3,6 @@
 
 #include "etk/__config.h"
 #include "etk/__thread/support.h"
-#include <chrono>
 
 _ETK_BEGIN_NAMESPACE_ETK
 
@@ -30,8 +29,10 @@ inline void usleep(unsigned int __us) { __etk_thread_msleep(__us / 1000); }
  */
 namespace os {
 
+// Start time measurement
 inline void time_start() { __etk_thread_time_start(); }
 
+// Returns tick count in ms
 inline unsigned int time_get() { return __etk_thread_time_get(); }
 
 } // namespace os

@@ -14,6 +14,13 @@
 #define _ETK_HAS_ASSERT_API_LINUX
 
 /**
+ * Logger configuations
+ * Currently supported logging APIs:
+ * - RTT
+ */
+#define _ETK_HAS_LOG_API_RTT
+
+/**
  * Threading configuations
  * Currently supported threading APIs:
  * - None
@@ -22,8 +29,8 @@
  */
 // # define _ETK_HAS_THREAD_API_NONE
 // # define _ETK_HAS_THREAD_API_PTHREAD
-# define _ETK_HAS_THREAD_API_APPLE
-// # define _ETK_HAS_THREAD_API_THREADX
+// # define _ETK_HAS_THREAD_API_APPLE
+# define _ETK_HAS_THREAD_API_THREADX
 
 # if defined(_ETK_HAS_THREAD_API_PTHREAD)
 #   define _ETK_HAS_NATIVE_MUTEX

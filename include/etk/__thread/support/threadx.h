@@ -9,30 +9,13 @@ _ETK_BEGIN_NAMESPACE_ETK
 //
 // mutex
 //
-typedef TX_MUTEX __etk_mutex_t;
-#define _ETK_MUTEX_INITIALIZER {0}
+typedef TX_MUTEX __etk_mutex_t; // ThreadX mutexes are recursive
+#define _ETK_MUTEX_INITIALIZER                                                 \
+    { 0 }
 
-typedef TX_MUTEX __etk_recursive_mutex_t;
-
-inline _ETK_API_INTERNAL int __etk_mutex_init(__etk_recursive_mutex_t *__m) {
-    return tx_mutex_create(__m, (char*)"", TX_INHERIT);
-}
-
-inline _ETK_API_INTERNAL int __etk_recursive_mutex_lock(__etk_recursive_mutex_t *__m) {
-    return tx_mutex_get(__m, TX_WAIT_FOREVER);
-}
-
-inline _ETK_API_INTERNAL bool __etk_recursive_mutex_trylock(__etk_recursive_mutex_t *__m) {
-    return tx_mutex_get(__m, TX_NO_WAIT) == TX_SUCCESS;
-}
-
-
-inline _ETK_API_INTERNAL int __etk_recursive_mutex_unlock(__etk_recursive_mutex_t *__m) {
-    return tx_mutex_put(__m);
-}
-
-inline _ETK_API_INTERNAL int __etk_recursive_mutex_destroy(__etk_recursive_mutex_t *__m) {
-    return tx_mutex_delete(__m);
+inline _ETK_API_INTERNAL int __etk_mutex_init(__etk_mutex_t *__m) {
+    // TODO: create non-recursive mutex
+    return tx_mutex_create(__m, (char *)"", TX_INHERIT);
 }
 
 inline _ETK_API_INTERNAL int __etk_mutex_lock(__etk_mutex_t *__m) {
@@ -51,28 +34,38 @@ inline _ETK_API_INTERNAL int __etk_mutex_destroy(__etk_mutex_t *__m) {
     return tx_mutex_delete(__m);
 }
 
+typedef TX_MUTEX __etk_recursive_mutex_t;
+#define _ETK_RECURSIVE_MUTEX_INITIALIZER                                       \
+    { 0 }
+
+inline _ETK_API_INTERNAL int
+__etk_recursive_mutex_init(__etk_recursive_mutex_t *__m) {
+    return tx_mutex_create(__m, (char *)"", TX_INHERIT);
+}
+
+inline _ETK_API_INTERNAL int
+__etk_recursive_mutex_lock(__etk_recursive_mutex_t *__m) {
+    return tx_mutex_get(__m, TX_WAIT_FOREVER);
+}
+
+inline _ETK_API_INTERNAL bool
+__etk_recursive_mutex_trylock(__etk_recursive_mutex_t *__m) {
+    return tx_mutex_get(__m, TX_NO_WAIT) == TX_SUCCESS;
+}
+
+inline _ETK_API_INTERNAL int
+__etk_recursive_mutex_unlock(__etk_recursive_mutex_t *__m) {
+    return tx_mutex_put(__m);
+}
+
+inline _ETK_API_INTERNAL int
+__etk_recursive_mutex_destroy(__etk_recursive_mutex_t *__m) {
+    return tx_mutex_delete(__m);
+}
+
 //
-// Condition Variable (TODO: not implemented)
+// Condition Variable (not implemented)
 //
-typedef void* __etk_condvar_t;
-#define _ETK_CONDVAR_INITIALIZER NULL
-
-inline _ETK_API_INTERNAL int __etk_condvar_signal(__etk_condvar_t *__cv) {
-    return -1;
-}
-
-inline _ETK_API_INTERNAL int __etk_condvar_broadcast(__etk_condvar_t *__cv) {
-    return -1;
-}
-
-inline _ETK_API_INTERNAL _LIBCPP_NO_THREAD_SAFETY_ANALYSIS int
-__etk_condvar_wait(__etk_condvar_t *__cv, __etk_mutex_t *__m) {
-    return -1;
-}
-
-inline _ETK_API_INTERNAL int __etk_condvar_destroy(__etk_condvar_t *__cv) {
-    return -1;
-}
 
 //
 // Thread ID
@@ -92,23 +85,78 @@ inline _ETK_API_INTERNAL bool __etk_thread_id_less(__etk_thread_id __t1,
 }
 
 //
-// Thread
-// 
-#define _ETK_NULL_THREAD {0}
-typedef TX_THREAD __etk_thread_t;
+// thread
+//
+#define _ETK_NULL_THREAD                                                       \
+    { 0 }
+struct tx_thread_t {
+    TX_THREAD __t;
+    TX_MUTEX __m;
+};
+typedef tx_thread_t __etk_thread_t;
 
-inline _ETK_API_INTERNAL __etk_thread_id
-__etk_thread_get_id(const __etk_thread_t *__t) {
-    return __t->tx_thread_id;
+bool __etk_thread_isnull(const __etk_thread_t *__t) {
+    return __t->__t.tx_thread_id == 0;
 }
 
-inline _ETK_API_INTERNAL int __etk_thread_create(__etk_thread_t *__t, const char *__name,
-                                                 void *(*__func)(void *), void *__arg, int __priority,
-                                                 void *__stack, size_t __stack_size) {
-    return tx_thread_create(__t, (char*)__name, (VOID(*)(ULONG))__func, (ULONG)__arg,
+inline _ETK_API_INTERNAL int
+__etk_thread_create(__etk_thread_t *__t, const char *__name,
+                    void (*__func)(long unsigned int), void *__arg,
+                    int __priority, void *__stack, size_t __stack_size) {
+    tx_mutex_create(&__t->__m, (char *)"", TX_NO_INHERIT);
+    return tx_thread_create(&__t->__t, (char *)__name, __func, (ULONG)__arg,
                             __stack, __stack_size, __priority, __priority,
                             TX_NO_TIME_SLICE, TX_AUTO_START);
 }
+
+inline _ETK_API_INTERNAL const char *
+__etk_thread_get_name(const __etk_thread_t *__t) {
+    return __t->__t.tx_thread_name;
+}
+
+// TODO: deprecate get_current_id()
+
+inline _ETK_API_INTERNAL __etk_thread_id
+__etk_thread_get_id(const __etk_thread_t *__t) {
+    (void)__t;
+    return __t->__t.tx_thread_id;
+}
+
+inline _ETK_API_INTERNAL int __etk_thread_join(__etk_thread_t *__t) {
+    return tx_mutex_get(&__t->__m, TX_WAIT_FOREVER);
+}
+
+inline _ETK_API_INTERNAL int __etk_thread_detach(__etk_thread_t *__t) {
+    (void)__t;
+    return -1; // Not implemented
+}
+
+inline _ETK_API_INTERNAL void __etk_thread_entry(__etk_thread_t *__t) {
+    tx_mutex_get(&__t->__m, TX_WAIT_FOREVER);
+}
+
+inline _ETK_API_INTERNAL void __etk_thread_exit(__etk_thread_t *__t) {
+    tx_mutex_put(&__t->__m);
+}
+
+//
+// this_thread
+//
+inline _ETK_API_INTERNAL void __etk_thread_yield() { tx_thread_relinquish(); }
+
+inline void __etk_thread_msleep(unsigned int __ms) {
+    tx_thread_sleep(__ms / 10);
+}
+
+inline void __etk_thread_usleep(unsigned int __us) {
+    tx_thread_sleep(__us / 10000);
+}
+
+inline void __etk_thread_time_start() {
+    // Not implemented
+}
+
+inline unsigned int __etk_thread_time_get() { return (tx_time_get() * 10); }
 
 _ETK_END_NAMESPACE_ETK
 

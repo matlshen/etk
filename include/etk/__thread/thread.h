@@ -9,7 +9,7 @@
 
 _ETK_BEGIN_NAMESPACE_ETK
 
-enum class priority_e {
+enum class priority {
     idle = -3,
     low = -2,
     below_normal = -1,
@@ -23,7 +23,7 @@ enum class priority_e {
 
 struct thread_attributes {
     const char *__name{""};
-    priority_e __priority{priority_e::normal};
+    priority __priority{priority::normal};
     void *__stack{nullptr};
     size_t __stack_size{0};
 };
@@ -85,6 +85,15 @@ class thread {
 
     template <class _Fp, class... _Args>
     static void *__callAdapter_(void *arg) noexcept;
+
+    // Alternative implementation for ThreadX
+    // TODO: Find more elegant way to do this
+    template <class _Fp, class... _Args>
+    static void __callAdapter_(long unsigned int arg) noexcept;
+
+    void __threadEntry() noexcept;
+
+    void __threadExit() noexcept;
 };
 
 // Class function definitions
@@ -120,11 +129,13 @@ const char *thread::get_name() const noexcept {
 template <class _Fp, class... _Args>
 void thread::__commonCtor_(thread_attributes &__attr, _Fp &&__func,
                            _Args &&...__args) noexcept {
-    using __Ct = std::tuple<std::decay_t<_Fp>, std::decay_t<_Args>...>;
+    using __Ct = std::tuple<thread*, std::decay_t<_Fp>, std::decay_t<_Args>...>;
     STATIC_ASSERT_MSG(sizeof(__Ct) <= sizeof(__fbuf_),
                       "thread function too large");
-    __Ct *__ct = new (__fbuf_)
-        __Ct(std::forward<_Fp>(__func), std::forward<_Args>(__args)...);
+    // __Ct *__ct = new (__fbuf_)
+    //     __Ct(std::forward<_Fp>(__func), std::forward<_Args>(__args)...);
+    __Ct *__ct = reinterpret_cast<__Ct *>(__fbuf_);
+    *__ct = __Ct{this, std::forward<_Fp>(__func), std::forward<_Args>(__args)...};
 
     ASSERT_0(__etk_thread_create(&__t_, __attr.__name,
                                  &thread::__callAdapter_<_Fp, _Args...>, __ct,
@@ -134,14 +145,37 @@ void thread::__commonCtor_(thread_attributes &__attr, _Fp &&__func,
 
 template <class _Fp, class... _Args>
 void *thread::__callAdapter_(void *arg) noexcept {
-    using __Ct = std::tuple<_Fp, _Args...>;
+    using __Ct = std::tuple<thread*, _Fp, _Args...>;
     __Ct *__ct = static_cast<__Ct *>(arg);
+    std::get<0>(*__ct)->__threadExit();
     std::apply(
-        [](auto &&__func, auto &&...__args) {
+        [](auto&&, auto &&__func, auto &&...__args) {
             __func(std::forward<decltype(__args)>(__args)...);
         },
         *__ct);
+    std::get<0>(*__ct)->__threadExit();
     return nullptr;
+}
+
+template <class _Fp, class... _Args>
+void thread::__callAdapter_(long unsigned int arg) noexcept {
+    using __Ct = std::tuple<thread*, _Fp, _Args...>;
+    __Ct *__ct = reinterpret_cast<__Ct *>(arg);
+    std::get<0>(*__ct)->__threadEntry();
+    std::apply(
+        [](auto&&, auto &&__func, auto &&...__args) {
+            __func(std::forward<decltype(__args)>(__args)...);
+        },
+        *__ct);
+    std::get<0>(*__ct)->__threadExit();
+}
+
+void thread::__threadEntry() noexcept {
+    __etk_thread_entry(&__t_);
+}
+
+void thread::__threadExit() noexcept {
+    __etk_thread_exit(&__t_);
 }
 
 _ETK_END_NAMESPACE_ETK
