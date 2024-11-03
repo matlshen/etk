@@ -71,12 +71,25 @@ class thread {
     //     t.__t_ = _ETK_NULL_THREAD;
     // }
 
-    bool joinable() const noexcept;
-    void join();
-    void detach();
-    id get_id() const noexcept;
+    bool joinable() const noexcept {
+        return !__etk_thread_isnull(&__t_);
+    }
 
-    const char *get_name() const noexcept;
+    void join() {
+        __etk_thread_join(&__t_);
+    }
+
+    void detach() {
+        __etk_thread_detach(&__t_);
+    }
+
+    id get_id() const noexcept {
+        return __etk_thread_get_id(&__t_);
+    }
+
+    const char *get_name() const noexcept {
+        return __etk_thread_get_name(&__t_);
+    }
 
   private:
     template <class _Fp, class... _Args>
@@ -91,9 +104,13 @@ class thread {
     template <class _Fp, class... _Args>
     static void __callAdapter_(long unsigned int arg) noexcept;
 
-    void __threadEntry() noexcept;
+    void __threadEntry() noexcept {
+        __etk_thread_entry(&__t_);
+    }
 
-    void __threadExit() noexcept;
+    void __threadExit() noexcept {
+        __etk_thread_exit(&__t_);
+    }
 };
 
 // Class function definitions
@@ -109,20 +126,6 @@ thread::thread(thread_attributes &__attr, _Fp &&__func,
                _Args &&...__args) noexcept {
     __commonCtor_(__attr, std::forward<_Fp>(__func),
                   std::forward<_Args>(__args)...);
-}
-
-bool thread::joinable() const noexcept { return !__etk_thread_isnull(&__t_); }
-
-void thread::join() { __etk_thread_join(&__t_); }
-
-void thread::detach() { __etk_thread_detach(&__t_); }
-
-thread::id thread::get_id() const noexcept {
-    return __etk_thread_get_id(&__t_);
-}
-
-const char *thread::get_name() const noexcept {
-    return __etk_thread_get_name(&__t_);
 }
 
 // Utility function definitions
@@ -168,14 +171,6 @@ void thread::__callAdapter_(long unsigned int arg) noexcept {
         },
         *__ct);
     std::get<0>(*__ct)->__threadExit();
-}
-
-void thread::__threadEntry() noexcept {
-    __etk_thread_entry(&__t_);
-}
-
-void thread::__threadExit() noexcept {
-    __etk_thread_exit(&__t_);
 }
 
 _ETK_END_NAMESPACE_ETK

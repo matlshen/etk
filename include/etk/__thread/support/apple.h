@@ -226,9 +226,13 @@ inline _ETK_API_INTERNAL int __etk_thread_detach(__etk_thread_t *__t) {
     return pthread_detach(__t->__t_);
 }
 
-inline _ETK_API_INTERNAL void __etk_thread_entry(__etk_thread_t *__t) {}
+inline _ETK_API_INTERNAL void __etk_thread_entry(__etk_thread_t *__t) {
+    (void)__t;
+}
 
-inline _ETK_API_INTERNAL void __etk_thread_exit(__etk_thread_t *__t) {}
+inline _ETK_API_INTERNAL void __etk_thread_exit(__etk_thread_t *__t) {
+    (void)__t;
+}
 
 inline _ETK_API_INTERNAL void __etk_thread_yield() { sched_yield(); }
 

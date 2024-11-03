@@ -2,7 +2,7 @@
 #define _ETK___THREAD_SUPPORT_THREADX_H_
 
 #include "etk/__config.h"
-#include "tx_api.h"
+#include "../rtos/threadx/tx_api.h"
 
 _ETK_BEGIN_NAMESPACE_ETK
 
