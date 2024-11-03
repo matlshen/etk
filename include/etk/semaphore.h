@@ -18,6 +18,8 @@ public:
     size_t count();
 };
 
+using binary_semaphore = counting_semaphore<1>;
+
 } // etk
 
 */

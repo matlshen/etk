@@ -7,44 +7,47 @@
 
 _ETK_BEGIN_NAMESPACE_ETK
 
+#if defined(_ETK_HAS_NATIVE_CONDVAR)
+
 class condition_variable {
     __etk_condvar_t __cv_ = _ETK_CONDVAR_INITIALIZER;
 
   public:
-    condition_variable() noexcept = default;
-    ~condition_variable();
-
+    condition_variable() = default;
     condition_variable(const condition_variable &) = delete;
-    condition_variable &operator=(const condition_variable &) = delete;
 
-    void notify_one() noexcept;
-    void notify_all() noexcept;
+    ~condition_variable() {
+        ASSERT_0(__etk_condvar_destroy(&__cv_));
+    }
 
-    void wait(unique_lock<mutex> &__lk) noexcept;
-    template <class _Predicate>
-    void wait(unique_lock<mutex> &__lk, _Predicate __pred);
+    void notify_one() noexcept {
+        ASSERT_0(__etk_condvar_signal(&__cv_));
+    }
+
+    void notify_all() noexcept {
+        ASSERT_0(__etk_condvar_broadcast(&__cv_));
+    }
+
+    void wait(unique_lock<mutex> &lock) noexcept {
+        ASSERT(lock.owns_lock());
+        int ec = __etk_condvar_wait(&__cv_, lock.mutex()->native_handle());
+        ASSERT_0(ec);
+    }
+
+    template <class Predicate>
+    void wait(unique_lock<mutex> &lock, Predicate pred) {
+        while (!pred()) {
+            wait(lock);
+        }
+    }
+
+    using native_handle_type = __etk_condvar_t *;
+    native_handle_type native_handle() noexcept { return &__cv_; }
 };
 
-condition_variable::~condition_variable() { __etk_condvar_destroy(&__cv_); }
-
-template <class _Predicate>
-void condition_variable::wait(unique_lock<mutex> &__lk, _Predicate __pred) {
-    while (!__pred()) {
-        wait(__lk);
-    }
-}
-
-void condition_variable::notify_one() noexcept { __etk_condvar_signal(&__cv_); }
-
-void condition_variable::notify_all() noexcept {
-    __etk_condvar_broadcast(&__cv_);
-}
-
-void condition_variable::wait(unique_lock<mutex> &__lk) noexcept {
-    ASSERT(__lk.owns_lock());
-    int ec = __etk_condvar_wait(&__cv_, __lk.mutex()->native_handle());
-    ASSERT_0(ec);
-}
+#else
+// TODO: Implement this
+#endif
 
 _ETK_END_NAMESPACE_ETK
 

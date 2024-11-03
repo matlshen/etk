@@ -18,7 +18,7 @@ template <size_t MaxCount> class counting_semaphore {
   public:
     constexpr explicit counting_semaphore(size_t initial) noexcept
         : __count_(initial) {
-        ASSERT(__count_ > 0 && __count_ <= MaxCount);
+        ASSERT(__count_ >= 0 && __count_ <= max());
     }
     ~counting_semaphore() noexcept = default;
 
@@ -27,7 +27,7 @@ template <size_t MaxCount> class counting_semaphore {
     void release(size_t update = 1) {
         unique_lock lock(mutex_);
         for (size_t i = 0; i < update; i++) {
-            if (__count_ >= MaxCount) {
+            if (__count_ >= max()) {
                 return;
             }
             __count_++;
@@ -48,6 +48,10 @@ template <size_t MaxCount> class counting_semaphore {
         }
         __count_--;
         return true;
+    }
+
+    constexpr size_t max() noexcept {
+        return MaxCount;
     }
 
     size_t count() {

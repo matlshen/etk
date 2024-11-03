@@ -5,17 +5,19 @@
 #include "etk/__mutex/mutex.h"
 #include "etk/__mutex/unique_lock.h"
 #include <array>
+#include <stddef.h>
 
 _ETK_BEGIN_NAMESPACE_ETK
+
+#if defined(_ETK_HAS_NATIVE_MQUEUE)
+// TODO: Implement this
+#else
 
 template <typename T, size_t N> class message_queue {
   public:
     message_queue() noexcept = default;
-    ~message_queue() noexcept = default;
-
-    // Do not allow copying
-    message_queue(const message_queue &) = delete;
     message_queue &operator=(const message_queue &) = delete;
+    ~message_queue() noexcept = default;
 
     void send(const T &message);
     bool try_send(const T &message);
@@ -24,13 +26,15 @@ template <typename T, size_t N> class message_queue {
 
     bool empty() const;
     bool full() const;
-    unsigned int size() const;
+    size_t size() const;
+
+    constexpr size_t capacity() const noexcept;
 
   private:
     std::array<T, N> __arr_;
-    unsigned int __head_{0};
-    unsigned int __tail_{0};
-    unsigned int __size_{0};
+    size_t __head_{0};
+    size_t __tail_{0};
+    size_t __size_{0};
     condition_variable cond_var_;
     mutex mutex_;
 };
@@ -53,7 +57,7 @@ bool message_queue<T, N>::try_send(const T &message) {
     }
 
     __arr_[__head_] = message;
-    __head_ = (__head_ + 1) % N;
+    __head_ = (__head_ + 1) % capacity();
     ++__size_;
 
     cond_var_.notify_one();
@@ -65,7 +69,7 @@ template <typename T, size_t N> T message_queue<T, N>::receive() {
     cond_var_.wait(lock, [this]() { return !empty(); });
 
     T message = __arr_[__tail_];
-    __tail_ = (__tail_ + 1) % N;
+    __tail_ = (__tail_ + 1) % capacity();
     --__size_;
 
     cond_var_.notify_one();
@@ -95,9 +99,16 @@ template <typename T, size_t N> bool message_queue<T, N>::full() const {
     return __size_ == N;
 }
 
-template <typename T, size_t N> unsigned int message_queue<T, N>::size() const {
+template <typename T, size_t N> size_t message_queue<T, N>::size() const {
     return __size_;
 }
+
+template <typename T, size_t N>
+constexpr size_t message_queue<T, N>::capacity() const noexcept {
+    return N;
+}
+
+#endif
 
 _ETK_END_NAMESPACE_ETK
 

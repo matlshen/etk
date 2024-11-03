@@ -60,6 +60,8 @@ template <class _Mutex>
     }
 }
 
+template <class _Mutex> unique_lock<_Mutex>::~unique_lock() { __m_->unlock(); }
+
 template <class _Mutex>
 unique_lock<_Mutex>::unique_lock(unique_lock &&__u)
     : __m_(__u.__m_), __owns_(__u.__owns_) {
