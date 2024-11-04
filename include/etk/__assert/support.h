@@ -21,7 +21,9 @@ void __etk_conditional_abort(bool condition);
 _ETK_END_NAMESPACE_ETK
 */
 
-#if defined(_ETK_HAS_ASSERT_API_LINUX)
+#if defined(_ETK_HAS_ASSERT_API_NONE)
+#include "etk/__assert/support/none.h"
+#elif defined(_ETK_HAS_ASSERT_API_LINUX)
 #include "etk/__assert/support/linux.h"
 #else
 #error "No assert support API defined"

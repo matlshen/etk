@@ -11,6 +11,49 @@ _ETK_BEGIN_NAMESPACE_ETK
 
 #if defined(_ETK_HAS_NATIVE_MQUEUE)
 // TODO: Implement this
+template <typename T, size_t N> class message_queue {
+  private:
+    __etk_mqueue_t __mq_;
+    uint8_t __buf_[N * sizeof(T)];
+
+  public:
+    message_queue() { ASSERT_0(__etk_mq_init(&__mq_, N, sizeof(T))); }
+
+    message_queue &operator=(const message_queue &) = delete;
+
+    ~message_queue() { ASSERT_0(__etk_mq_destroy(&__mq_)); }
+
+    void send(const T &message) {
+        ASSERT_0(__etk_mq_send(&__mq_, reinterpret_cast<const void *>(&message),
+                               sizeof(T)));
+    }
+
+    bool try_send(const T &message) {
+        return __etk_mq_try_send(
+            &__mq_, reinterpret_cast<const void *>(&message), sizeof(T));
+    }
+
+    T receive() {
+        T message;
+        ASSERT_0(__etk_mq_receive(&__mq_, reinterpret_cast<void *>(&message),
+                                  sizeof(T)));
+        return message;
+    }
+
+    bool try_receive(T *message) {
+        return __etk_mq_try_receive(&__mq_, reinterpret_cast<void *>(message),
+                                    sizeof(T));
+    }
+
+    bool empty() const { return __etk_mq_empty(&__mq_); }
+
+    bool full() const { return __etk_mq_size(&__mq_) == N; }
+
+    size_t size() const { return __etk_mq_size(&__mq_); }
+
+    constexpr size_t capacity() const noexcept { return N; }
+};
+
 #else
 
 template <typename T, size_t N> class message_queue {

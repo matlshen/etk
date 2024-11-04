@@ -9,13 +9,11 @@ _ETK_BEGIN_NAMESPACE_ETK
 
 class log {
 public:
-    enum level {
-        FATAL = 0;
-        ERROR = 1;
-        WARN = 2;
-        INFO = 3;
-        DEBUG = 4;
-    };
+    static constexpr int FATAL_LVL = 0;
+    static constexpr int ERROR_LVL = 1;
+    static constexpr int WARN_LVL = 2;
+    static constexpr int INFO_LVL = 3;
+    static constexpr int DEBUG_LVL = 4;
     
     static bool set_level(int level) {
         return __etk_set_log_level(level);

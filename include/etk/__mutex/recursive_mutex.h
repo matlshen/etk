@@ -2,7 +2,8 @@
 #define _ETK___MUTEX_RECURSIVE_MUTEX_H_
 
 #include "etk/__config.h"
-#include "etk/__thread/support.h"
+#include "etk/__mutex/support.h"
+#include "etk/assert.h"
 
 _ETK_BEGIN_NAMESPACE_ETK
 

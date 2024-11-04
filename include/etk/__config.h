@@ -4,14 +4,17 @@
 /**
  * Assert configuations
  */
+// #define _ETK_HAS_ASSERT_API_NONE
 #define _ETK_HAS_ASSERT_API_LINUX
 
 /**
  * Logger configuations
  * Currently supported logging APIs:
+ * - None
  * - RTT
  */
-#define _ETK_HAS_LOG_API_RTT
+#define _ETK_HAS_LOG_API_NONE
+// #define _ETK_HAS_LOG_API_RTT
 
 /**
  * Threading configuations

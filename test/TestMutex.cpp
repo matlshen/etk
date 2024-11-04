@@ -20,8 +20,7 @@ void threadRunner(etk::mutex *m) {
 }
 TEST(Testmutex, mutexLock) {
     etk::mutex m;
-    etk::thread_attributes attr;
-    etk::thread t1(attr, threadRunner, &m);
+    etk::thread<1024> t1(threadRunner, &m);
     t1.join();
 }
 
@@ -34,8 +33,7 @@ void threadRunner2(etk::mutex *m) {
 }
 TEST(Testmutex, mutexTryLock) {
     etk::mutex m;
-    etk::thread_attributes attr;
-    etk::thread t1(attr, threadRunner2, &m);
+    etk::thread<1024> t1(threadRunner2, &m);
     t1.join();
 }
 
@@ -51,10 +49,9 @@ void uniqueTryLock(etk::mutex *m) {
 TEST(Testmutex, unique_lock) {
     global = 0;
 
-    etk::thread_attributes attr;
     etk::mutex m;
-    etk::thread t1(attr, uniqueTryLock, &m);
-    etk::thread t2(attr, uniqueTryLock, &m);
+    etk::thread<1024> t1(uniqueTryLock, &m);
+    etk::thread<1024> t2(uniqueTryLock, &m);
 
     t1.join();
     t2.join();

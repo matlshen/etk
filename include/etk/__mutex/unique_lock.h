@@ -3,6 +3,7 @@
 
 #include "etk/__config.h"
 #include "etk/__mutex/mutex.h"
+#include "etk/assert.h"
 
 _ETK_BEGIN_NAMESPACE_ETK
 

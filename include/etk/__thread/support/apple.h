@@ -8,98 +8,10 @@
 #include <unistd.h>
 #include <time.h>
 
+#include "etk/__mutex/support/apple.h"
+#include "etk/assert.h"
+
 _ETK_BEGIN_NAMESPACE_ETK
-
-//
-// mutex
-//
-typedef pthread_mutex_t __etk_mutex_t;
-#define _ETK_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
-
-inline _ETK_API_INTERNAL int __etk_mutex_init(__etk_mutex_t *__m) {
-    pthread_mutexattr_t __attr;
-    int __ec = pthread_mutexattr_init(&__attr);
-    if (__ec)
-        return __ec;
-    __ec = pthread_mutexattr_settype(&__attr, PTHREAD_MUTEX_NORMAL);
-    if (__ec) {
-        pthread_mutexattr_destroy(&__attr);
-        return __ec;
-    }
-    __ec = pthread_mutex_init(__m, &__attr);
-    if (__ec) {
-        pthread_mutexattr_destroy(&__attr);
-        return __ec;
-    }
-    __ec = pthread_mutexattr_destroy(&__attr);
-    if (__ec) {
-        pthread_mutex_destroy(__m);
-        return __ec;
-    }
-    return 0;
-}
-
-inline _ETK_API_INTERNAL int __etk_mutex_lock(__etk_mutex_t *__m) {
-    return pthread_mutex_lock(__m);
-}
-
-inline _ETK_API_INTERNAL bool __etk_mutex_trylock(__etk_mutex_t *__m) {
-    return pthread_mutex_trylock(__m) == 0;
-}
-
-inline _ETK_API_INTERNAL int __etk_mutex_unlock(__etk_mutex_t *__m) {
-    return pthread_mutex_unlock(__m);
-}
-
-inline _ETK_API_INTERNAL int __etk_mutex_destroy(__etk_mutex_t *__m) {
-    return pthread_mutex_destroy(__m);
-}
-
-typedef pthread_mutex_t __etk_recursive_mutex_t;
-#define _ETK_RECURSIVE_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
-
-inline _ETK_API_INTERNAL int __etk_recursive_mutex_init(__etk_recursive_mutex_t *__m) {
-    pthread_mutexattr_t __attr;
-    int __ec = pthread_mutexattr_init(&__attr);
-    if (__ec)
-        return __ec;
-    __ec = pthread_mutexattr_settype(&__attr, PTHREAD_MUTEX_RECURSIVE);
-    if (__ec) {
-        pthread_mutexattr_destroy(&__attr);
-        return __ec;
-    }
-    __ec = pthread_mutex_init(__m, &__attr);
-    if (__ec) {
-        pthread_mutexattr_destroy(&__attr);
-        return __ec;
-    }
-    __ec = pthread_mutexattr_destroy(&__attr);
-    if (__ec) {
-        pthread_mutex_destroy(__m);
-        return __ec;
-    }
-    return 0;
-}
-
-inline _ETK_API_INTERNAL int
-__etk_recursive_mutex_lock(__etk_recursive_mutex_t *__m) {
-    return pthread_mutex_lock(__m);
-}
-
-inline _ETK_API_INTERNAL bool
-__etk_recursive_mutex_trylock(__etk_recursive_mutex_t *__m) {
-    return pthread_mutex_trylock(__m) == 0;
-}
-
-inline _ETK_API_INTERNAL int
-__etk_recursive_mutex_unlock(__etk_recursive_mutex_t *__m) {
-    return pthread_mutex_unlock(__m);
-}
-
-inline _ETK_API_INTERNAL int
-__etk_recursive_mutex_destroy(__etk_recursive_mutex_t *__m) {
-    return pthread_mutex_destroy(__m);
-}
 
 //
 // Condition Variable
@@ -184,14 +96,16 @@ __etk_thread_create(__etk_thread_t *__t, const char *__name,
             return __ec;
         }
     }
-    // Set stack location
-    if (__stack && __stack_size) {
-        __ec = pthread_attr_setstack(&attr, __stack, __stack_size);
-        if (__ec) {
-            pthread_attr_destroy(&attr);
-            return __ec;
-        }
-    }
+    // Don't use static stack for pthread
+    (void)__stack;
+    (void)__stack_size;
+    // if (__stack && __stack_size) {
+    //     __ec = pthread_attr_setstack(&attr, __stack, __stack_size);
+    //     if (__ec) {
+    //         pthread_attr_destroy(&attr);
+    //         return __ec;
+    //     }
+    // }
     // Create the thread
     __ec = pthread_create(&__t->__t_, nullptr, __func, __arg);
     if (__ec) {

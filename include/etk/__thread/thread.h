@@ -21,18 +21,14 @@ enum class priority {
     error = 5
 };
 
-struct thread_attributes {
-    const char *__name{""};
-    priority __priority{priority::normal};
-    void *__stack{nullptr};
-    size_t __stack_size{0};
-};
-
-class thread {
+template <size_t StackSize> class thread {
     __etk_thread_t __t_;
 
     // Buffer to store thread function and arguments
     char __fbuf_[_ETK_THREAD_FUNC_MAX_SIZE];
+
+    // Local stack
+    char __stack_[StackSize];
 
     thread(const thread &);
     thread &operator=(const thread &);
@@ -52,12 +48,24 @@ class thread {
     /**
      * @brief Construct a new thread object
      *
-     * @param __attr Thread attributes
+     * @param __prio Thread priority
      * @tparam _Fp Pointer to thread function
      * @tparam _Args Arguments to pass to thread function
      */
     template <class _Fp, class... _Args>
-    thread(thread_attributes &__attr, _Fp &&__func, _Args &&...__args) noexcept;
+    thread(priority __prio, _Fp &&__func, _Args &&...__args) noexcept;
+
+    /**
+     * @brief Construct a new thread object
+     *
+     * @param __name Thread name
+     * @param __prio Thread priority
+     * @tparam _Fp Pointer to thread function
+     * @tparam _Args Arguments to pass to thread function
+     */
+    template <class _Fp, class... _Args>
+    thread(const char *__name, priority __prio, _Fp &&__func,
+           _Args &&...__args) noexcept;
 
     /**
      * @brief Default destructor
@@ -71,29 +79,42 @@ class thread {
     //     t.__t_ = _ETK_NULL_THREAD;
     // }
 
-    bool joinable() const noexcept {
-        return !__etk_thread_isnull(&__t_);
-    }
+    /**
+     * @brief Check if the thread is joinable
+     * 
+     * @return true if the thread is joinable, false otherwise
+     */
+    bool joinable() const noexcept { return !__etk_thread_isnull(&__t_); }
 
-    void join() {
-        __etk_thread_join(&__t_);
-    }
+    /**
+     * @brief Join the thread
+     */
+    void join() { __etk_thread_join(&__t_); }
 
-    void detach() {
-        __etk_thread_detach(&__t_);
-    }
+    /**
+     * @brief Detach from the thread
+     */
+    void detach() { __etk_thread_detach(&__t_); }
 
-    id get_id() const noexcept {
-        return __etk_thread_get_id(&__t_);
-    }
+    /**
+     * @brief Get the thread id
+     * 
+     * @return id Thread id
+     */
+    id get_id() const noexcept { return __etk_thread_get_id(&__t_); }
 
+    /**
+     * @brief Get the thread name
+     * 
+     * @return const char* Thread name
+     */
     const char *get_name() const noexcept {
         return __etk_thread_get_name(&__t_);
     }
 
   private:
     template <class _Fp, class... _Args>
-    void __commonCtor_(thread_attributes &__attr, _Fp &&__func,
+    void __commonCtor_(const char *__name, priority __prio, _Fp &&__func,
                        _Args &&...__args) noexcept;
 
     template <class _Fp, class... _Args>
@@ -104,55 +125,64 @@ class thread {
     template <class _Fp, class... _Args>
     static void __callAdapter_(long unsigned int arg) noexcept;
 
-    void __threadEntry() noexcept {
-        __etk_thread_entry(&__t_);
-    }
+    void __threadEntry() noexcept { __etk_thread_entry(&__t_); }
 
-    void __threadExit() noexcept {
-        __etk_thread_exit(&__t_);
-    }
+    void __threadExit() noexcept { __etk_thread_exit(&__t_); }
 };
 
-// Class function definitions
+// No name/priority constructor
+template <size_t StackSize>
 template <class _Fp, class... _Args>
-thread::thread(_Fp &&__func, _Args &&...__args) noexcept {
-    thread_attributes __attr;
-    __commonCtor_(__attr, std::forward<_Fp>(__func),
+thread<StackSize>::thread(_Fp &&__func, _Args &&...__args) noexcept {
+    __commonCtor_("", priority::normal, std::forward<_Fp>(__func),
                   std::forward<_Args>(__args)...);
 }
 
+// Priority constructor
+template <size_t StackSize>
 template <class _Fp, class... _Args>
-thread::thread(thread_attributes &__attr, _Fp &&__func,
-               _Args &&...__args) noexcept {
-    __commonCtor_(__attr, std::forward<_Fp>(__func),
+thread<StackSize>::thread(priority __prio, _Fp &&__func,
+                          _Args &&...__args) noexcept {
+    __commonCtor_("", __prio, std::forward<_Fp>(__func),
+                  std::forward<_Args>(__args)...);
+}
+
+// Name/priority constructor
+template <size_t StackSize>
+template <class _Fp, class... _Args>
+thread<StackSize>::thread(const char *__name, priority __prio, _Fp &&__func,
+                          _Args &&...__args) noexcept {
+    __commonCtor_(__name, __prio, std::forward<_Fp>(__func),
                   std::forward<_Args>(__args)...);
 }
 
 // Utility function definitions
+template <size_t StackSize>
 template <class _Fp, class... _Args>
-void thread::__commonCtor_(thread_attributes &__attr, _Fp &&__func,
-                           _Args &&...__args) noexcept {
-    using __Ct = std::tuple<thread*, std::decay_t<_Fp>, std::decay_t<_Args>...>;
+void thread<StackSize>::__commonCtor_(const char *__name, priority __prio,
+                                      _Fp &&__func,
+                                      _Args &&...__args) noexcept {
+    using __Ct =
+        std::tuple<thread *, std::decay_t<_Fp>, std::decay_t<_Args>...>;
     STATIC_ASSERT_MSG(sizeof(__Ct) <= sizeof(__fbuf_),
                       "thread function too large");
-    // __Ct *__ct = new (__fbuf_)
-    //     __Ct(std::forward<_Fp>(__func), std::forward<_Args>(__args)...);
     __Ct *__ct = reinterpret_cast<__Ct *>(__fbuf_);
-    *__ct = __Ct{this, std::forward<_Fp>(__func), std::forward<_Args>(__args)...};
+    *__ct =
+        __Ct{this, std::forward<_Fp>(__func), std::forward<_Args>(__args)...};
 
-    ASSERT_0(__etk_thread_create(&__t_, __attr.__name,
-                                 &thread::__callAdapter_<_Fp, _Args...>, __ct,
-                                 static_cast<int>(__attr.__priority),
-                                 __attr.__stack, __attr.__stack_size));
+    ASSERT_0(__etk_thread_create(
+        &__t_, __name, &thread::__callAdapter_<_Fp, _Args...>, __ct,
+        static_cast<int>(__prio), static_cast<void *>(__stack_), StackSize));
 }
 
+template <size_t StackSize>
 template <class _Fp, class... _Args>
-void *thread::__callAdapter_(void *arg) noexcept {
-    using __Ct = std::tuple<thread*, _Fp, _Args...>;
+void *thread<StackSize>::__callAdapter_(void *arg) noexcept {
+    using __Ct = std::tuple<thread *, _Fp, _Args...>;
     __Ct *__ct = static_cast<__Ct *>(arg);
     std::get<0>(*__ct)->__threadExit();
     std::apply(
-        [](auto&&, auto &&__func, auto &&...__args) {
+        [](auto &&, auto &&__func, auto &&...__args) {
             __func(std::forward<decltype(__args)>(__args)...);
         },
         *__ct);
@@ -160,13 +190,14 @@ void *thread::__callAdapter_(void *arg) noexcept {
     return nullptr;
 }
 
+template <size_t StackSize>
 template <class _Fp, class... _Args>
-void thread::__callAdapter_(long unsigned int arg) noexcept {
-    using __Ct = std::tuple<thread*, _Fp, _Args...>;
+void thread<StackSize>::__callAdapter_(long unsigned int arg) noexcept {
+    using __Ct = std::tuple<thread *, _Fp, _Args...>;
     __Ct *__ct = reinterpret_cast<__Ct *>(arg);
     std::get<0>(*__ct)->__threadEntry();
     std::apply(
-        [](auto&&, auto &&__func, auto &&...__args) {
+        [](auto &&, auto &&__func, auto &&...__args) {
             __func(std::forward<decltype(__args)>(__args)...);
         },
         *__ct);

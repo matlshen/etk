@@ -47,6 +47,7 @@ class condition_variable {
 
 #else
 // TODO: Implement this
+STATIC_ASSERT(false, "No condition variable implementation available");
 #endif
 
 _ETK_END_NAMESPACE_ETK
