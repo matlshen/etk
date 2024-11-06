@@ -21,7 +21,8 @@ enum class priority {
     error = 5
 };
 
-template <size_t StackSize> class thread {
+template <size_t StackSize = 1024> class thread {
+  private:
     __etk_thread_t __t_;
 
     // Buffer to store thread function and arguments
@@ -29,10 +30,6 @@ template <size_t StackSize> class thread {
 
     // Local stack
     char __stack_[StackSize];
-
-    thread(const thread &);
-    thread &operator=(const thread &);
-
   public:
     using id = __etk_thread_id;
 
@@ -43,7 +40,7 @@ template <size_t StackSize> class thread {
      * @tparam _Args Arguments to pass to thread function
      */
     template <class _Fp, class... _Args>
-    thread(_Fp &&__func, _Args &&...__args) noexcept;
+    explicit thread(_Fp &&__func, _Args &&...__args) noexcept;
 
     /**
      * @brief Construct a new thread object
@@ -53,7 +50,7 @@ template <size_t StackSize> class thread {
      * @tparam _Args Arguments to pass to thread function
      */
     template <class _Fp, class... _Args>
-    thread(priority __prio, _Fp &&__func, _Args &&...__args) noexcept;
+    explicit thread(priority __prio, _Fp &&__func, _Args &&...__args) noexcept;
 
     /**
      * @brief Construct a new thread object
@@ -64,13 +61,16 @@ template <size_t StackSize> class thread {
      * @tparam _Args Arguments to pass to thread function
      */
     template <class _Fp, class... _Args>
-    thread(const char *__name, priority __prio, _Fp &&__func,
+    explicit thread(const char *__name, priority __prio, _Fp &&__func,
            _Args &&...__args) noexcept;
 
+    thread(const thread &) = delete;
+    thread &operator=(const thread &) = delete;
+
     /**
-     * @brief Default destructor
+     * @brief Destructor detaches and cancels thread
      */
-    ~thread() noexcept = default;
+    ~thread() noexcept;
 
     /**
      * @brief Move constructor
@@ -81,7 +81,7 @@ template <size_t StackSize> class thread {
 
     /**
      * @brief Check if the thread is joinable
-     * 
+     *
      * @return true if the thread is joinable, false otherwise
      */
     bool joinable() const noexcept { return !__etk_thread_isnull(&__t_); }
@@ -98,14 +98,14 @@ template <size_t StackSize> class thread {
 
     /**
      * @brief Get the thread id
-     * 
+     *
      * @return id Thread id
      */
     id get_id() const noexcept { return __etk_thread_get_id(&__t_); }
 
     /**
      * @brief Get the thread name
-     * 
+     *
      * @return const char* Thread name
      */
     const char *get_name() const noexcept {
@@ -156,6 +156,15 @@ thread<StackSize>::thread(const char *__name, priority __prio, _Fp &&__func,
                   std::forward<_Args>(__args)...);
 }
 
+// Destructor
+template <size_t StackSize> thread<StackSize>::~thread() noexcept {
+    if (joinable()) {
+        __etk_thread_detach(&__t_);
+    }
+    __etk_thread_cancel(&__t_);
+    __threadExit();
+}
+
 // Utility function definitions
 template <size_t StackSize>
 template <class _Fp, class... _Args>
@@ -203,6 +212,8 @@ void thread<StackSize>::__callAdapter_(long unsigned int arg) noexcept {
         *__ct);
     std::get<0>(*__ct)->__threadExit();
 }
+
+using dynamic_thread = thread<0>;
 
 _ETK_END_NAMESPACE_ETK
 

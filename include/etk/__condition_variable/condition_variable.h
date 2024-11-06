@@ -2,7 +2,7 @@
 #define _ETK___CONDITION_VARIABLE_CONDITION_VARIABLE_H_
 
 #include "etk/__config.h"
-#include "etk/__thread/support.h"
+#include "etk/__condition_variable/support.h"
 #include "etk/mutex.h"
 
 _ETK_BEGIN_NAMESPACE_ETK

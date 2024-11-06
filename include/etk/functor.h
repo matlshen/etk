@@ -49,16 +49,16 @@ template <class _Fp> class functor {
     bool empty() const noexcept { return __empty_; }
 };
 
-template <class... _Args> class functorArgs {
+template <class... _Args> class functor_args {
     std::tuple<_Args...> __args_;
 
   public:
     /**
-     * @brief Construct a new functorArgs object.
+     * @brief Construct a new functor_args object.
      *
      * @tparam __args Arguments to pass to the functor.
      */
-    functorArgs(_Args &&...__args) : __args_(std::forward<_Args>(__args)...) {}
+    functor_args(_Args &&...__args) : __args_(std::forward<_Args>(__args)...) {}
 
     /**
      * @brief Get the arguments.
@@ -74,12 +74,12 @@ class functorCaller {
      * @brief Call a functor with arguments.
      *
      * @tparam __fc functor object
-     * @tparam __args functorArgs object
+     * @tparam __args functor_args object
      * @return functor return value.
      */
     template <class _Fp, class... _Args>
     static inline auto call(functor<_Fp> &__fc,
-                            const functorArgs<_Args...> &__args)
+                            const functor_args<_Args...> &__args)
         -> decltype(auto) {
         return std::apply(__fc, __args.getArgs());
     }

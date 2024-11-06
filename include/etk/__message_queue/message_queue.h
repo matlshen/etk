@@ -10,7 +10,7 @@
 _ETK_BEGIN_NAMESPACE_ETK
 
 #if defined(_ETK_HAS_NATIVE_MQUEUE)
-// TODO: Implement this
+
 template <typename T, size_t N> class message_queue {
   private:
     __etk_mqueue_t __mq_;

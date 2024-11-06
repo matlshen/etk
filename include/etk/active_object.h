@@ -17,7 +17,8 @@ template<typename TQueueType, size_t TQueueSize = 1>
 class active_object {
 public:
     active_object();
-    active_object(const thread_attributes& attr);
+    active_object(priority prio);
+    active_object(const char *name, priority prio);
     active_object &operator=(const active_object &) = delete;
     ~active_object();
 

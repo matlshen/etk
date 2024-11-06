@@ -7,10 +7,6 @@
 _ETK_BEGIN_NAMESPACE_ETK
 
 //
-// Condition Variable (not implemented)
-//
-
-//
 // Thread ID
 //
 typedef ULONG __etk_thread_id;

@@ -2,6 +2,11 @@
 #define _ETK_BIT_MANIPULATION_H_
 
 /**
+ * @brief Bit macro
+ */
+#define BIT(bit) (1 << (bit))
+
+/**
  * @brief Set a bit in a variable.
  *
  * This macro sets the bit at position `bit` in the variable `val`.

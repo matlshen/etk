@@ -14,29 +14,6 @@
 _ETK_BEGIN_NAMESPACE_ETK
 
 //
-// Condition Variable
-//
-typedef pthread_cond_t __etk_condvar_t;
-#define _ETK_CONDVAR_INITIALIZER PTHREAD_COND_INITIALIZER
-
-inline _ETK_API_INTERNAL int __etk_condvar_signal(__etk_condvar_t *__cv) {
-    return pthread_cond_signal(__cv);
-}
-
-inline _ETK_API_INTERNAL int __etk_condvar_broadcast(__etk_condvar_t *__cv) {
-    return pthread_cond_broadcast(__cv);
-}
-
-inline _ETK_API_INTERNAL _LIBCPP_NO_THREAD_SAFETY_ANALYSIS int
-__etk_condvar_wait(__etk_condvar_t *__cv, __etk_mutex_t *__m) {
-    return pthread_cond_wait(__cv, __m);
-}
-
-inline _ETK_API_INTERNAL int __etk_condvar_destroy(__etk_condvar_t *__cv) {
-    return pthread_cond_destroy(__cv);
-}
-
-//
 // Thread ID
 //
 typedef pthread_t __etk_thread_id;
@@ -138,6 +115,10 @@ inline _ETK_API_INTERNAL int __etk_thread_join(__etk_thread_t *__t) {
 
 inline _ETK_API_INTERNAL int __etk_thread_detach(__etk_thread_t *__t) {
     return pthread_detach(__t->__t_);
+}
+
+inline _ETK_API_INTERNAL int __etk_thread_cancel(__etk_thread_t *__t) {
+    return pthread_cancel(__t->__t_);
 }
 
 inline _ETK_API_INTERNAL void __etk_thread_entry(__etk_thread_t *__t) {

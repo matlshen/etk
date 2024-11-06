@@ -18,8 +18,10 @@ TEST_F(SemaphoreTest, TestAcquire) {
     etk::counting_semaphore<2> sem(2);
     sem.acquire();
     sem.acquire();
+    EXPECT_EQ(0, sem.count());
     sem.release();
     sem.release();
+    for (volatile int i = 0; i < 1000000; i++);
     sem.acquire();
     sem.acquire();
 }

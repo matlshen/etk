@@ -76,7 +76,7 @@ void receiveFuncMult(etk::message_queue<int, 2> &mq, int &received_message) {
     received_message += mq.receive();
 }
 TEST_F(MessageQueueTest, TestMultipleProducers) {
-    std::array<etk::thread, 4> producers = {
+    std::array<etk::thread<1024>, 4> producers = {
         etk::thread(sendFunc, std::ref(mq), 1),
         etk::thread(sendFunc, std::ref(mq), 2),
         etk::thread(sendFunc, std::ref(mq), 3),

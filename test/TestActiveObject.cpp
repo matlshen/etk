@@ -3,7 +3,7 @@
 
 static int global1 = 0;
 
-class Adder : public etk::active_object<int, 10> {
+class Adder : public etk::active_object<1024, int, 10> {
   public:
     bool process(int &msg) override {
         global1 += msg;
@@ -15,7 +15,7 @@ class Adder : public etk::active_object<int, 10> {
     }
 };
 
-TEST(TestActiveObject, PostTask) {
+TEST(TestActiveObject, Send) {
     Adder ao;
     ao.send(10);
     ao.send(10);

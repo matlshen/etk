@@ -4,20 +4,22 @@
 #include "etk/__config.h"
 #include "etk/__message_queue/message_queue.h"
 #include "etk/__thread/thread.h"
-#include <iostream>
 
 _ETK_BEGIN_NAMESPACE_ETK
 
-template <typename TQueueType, size_t TQueueSize = 1> class active_object {
+template <size_t StackSize, typename TQueueType, size_t TQueueSize = 1> class active_object {
   private:
-    thread __thread_;
+    thread<StackSize> __thread_;
     message_queue<TQueueType, TQueueSize> __queue_;
 
   public:
     active_object() : __thread_(active_object::static_thread_entry, this) {}
 
-    active_object(const thread_attributes &attr) noexcept
-        : __thread_(attr, active_object::static_thread_entry, this) {}
+    active_object(priority prio) noexcept
+        : __thread_(prio, active_object::static_thread_entry, this) {}
+
+    active_object(const char *name, priority prio) noexcept
+        : __thread_(name, prio, active_object::static_thread_entry, this) {}
 
     active_object &operator=(const active_object &) = delete;
 

@@ -55,7 +55,7 @@ void t4func(etk::mutex &m, etk::condition_variable &cv, int &i, bool &done) {
     (void)i;
 }
 TEST_F(ConditionVariableTest, TestWaitAndNotifyAll) {
-    std::array<etk::thread, 4> threads = {
+    std::array<etk::thread<1024>, 4> threads = {
         etk::thread(t3func, std::ref(m), std::ref(cv), std::ref(i),
                     std::ref(done)),
         etk::thread(t3func, std::ref(m), std::ref(cv), std::ref(i),

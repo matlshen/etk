@@ -6,14 +6,7 @@
 
 namespace etk {
 
-class thread_attributes {
-public:
-    const char *__name{""};
-    priority_e __priority{priority_e::normal};
-    void *__stack{nullptr};
-    size_t __stack_size{0};
-};
-
+template <size_t StackSize = 1024>
 class thread {
 public:
     class id;
@@ -22,7 +15,11 @@ public:
     explicit thread(F&& f, Args&&... args) noexcept;
 
     template <class F, class ...Args>
-    explicit thread(thread_attributes& attr, F&& f, Args&&... args) noexcept;
+    explicit thread(priority prio, F&& f, Args&&... args) noexcept;
+
+    template <class F, class ...Args>
+    explicit thread(const char *name, 
+                    priority prio, F&& f, Args&&... args) noexcept;
 
     ~thread();
 
@@ -39,8 +36,6 @@ public:
 
 namespace this_thread {
 
-    thread::id get_id() noexcept;
-
     void yield() noexcept;
 
     void msleep(unsigned int __ms);
@@ -48,6 +43,8 @@ namespace this_thread {
     void usleep(unsigned int __us);
 
 }
+
+using thread = thread<1024>;
 
 }   // etk
  */
