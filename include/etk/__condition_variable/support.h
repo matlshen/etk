@@ -23,8 +23,12 @@ _ETK_END_NAMESPACE_ETK
 
 #include "etk/__config.h"
 
-#if defined(_ETK_HAS_THREAD_API_APPLE)
-#include "etk/__condition_variable/support/apple.h"
+#if defined(_ETK_HAS_THREAD_API_PTHREAD)
+#    include "etk/__condition_variable/support/pthread.h"
+#elif defined(_ETK_HAS_THREAD_API_APPLE)
+#    include "etk/__condition_variable/support/pthread.h"
+#else
+#    error "No condition variable support"
 #endif
 
 #endif // _ETK___CONDITION_VARIABLE_SUPPORT_H_

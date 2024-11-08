@@ -6,14 +6,14 @@
 
 #define LOG_LEVEL_FATAL 0
 #define LOG_LEVEL_ERROR 1
-#define LOG_LEVEL_WARN  2
-#define LOG_LEVEL_INFO  3
+#define LOG_LEVEL_WARN 2
+#define LOG_LEVEL_INFO 3
 #define LOG_LEVEL_DEBUG 4
 
 inline int __etk_sys_log_level = LOG_LEVEL_FATAL;
 
 // TODO: Find more elegant way to handle this
-inline bool __etk_set_log_level(int level) { 
+inline bool __etk_set_log_level(int level) {
     if (level > LOG_LEVEL_DEBUG || level < LOG_LEVEL_FATAL) {
         return false;
     }
@@ -23,7 +23,7 @@ inline bool __etk_set_log_level(int level) {
 
 inline int __etk_get_log_level() { return __etk_sys_log_level; }
 
-inline void __etk_log(int level, const char *fmt, va_list *args) {
+inline void __etk_log(int level, const char* fmt, va_list* args) {
     if (level > __etk_sys_log_level) {
         return;
     }

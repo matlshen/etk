@@ -19,11 +19,11 @@ _ETK_END_NAMESPACE_ETK
 */
 
 #if defined(_ETK_HAS_LOG_API_NONE)
-#include "etk/__log/support/none.h"
+#    include "etk/__log/support/none.h"
 #elif defined(_ETK_HAS_LOG_API_RTT)
-#include "etk/__log/support/RTT.h"
+#    include "etk/__log/support/RTT.h"
 #else
-#error "No logging API defined"
+#    error "No logging API defined"
 #endif
 
 #endif // _ETK___LOG_SUPPORT_H_

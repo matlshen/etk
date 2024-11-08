@@ -8,12 +8,12 @@
  *   and executes a virtual process task when a message is received
  * - Each active_object has a single message queue
  * - External threads can send messages to the active object
- * 
+ *
 ########## Active object synopsis ##########
 
 namespace etk {
 
-template<typename TQueueType, size_t TQueueSize = 1>
+template<size_t StackSize, typename TQueueType, size_t TQueueSize = 1>
 class active_object {
 public:
     active_object();

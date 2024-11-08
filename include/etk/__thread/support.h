@@ -55,12 +55,14 @@ unsigned int __etk_thread_time_get();
 _ETK_END_NAMESPACE_ETK
 */
 
-#if defined(_ETK_HAS_THREAD_API_APPLE)
-#include "etk/__thread/support/apple.h"
+#if defined(_ETK_HAS_THREAD_API_PTHREAD)
+#    include "etk/__thread/support/pthread.h"
+#elif defined(_ETK_HAS_THREAD_API_APPLE)
+#    include "etk/__thread/support/pthread.h"
 #elif defined(_ETK_HAS_THREAD_API_THREADX)
-#include "etk/__thread/support/threadx.h"
+#    include "etk/__thread/support/threadx.h"
 #else
-#error "No thread support API defined"
+#    error "No thread support API defined"
 #endif
 
 #endif // _ETK___THREAD_SUPPORT_H_

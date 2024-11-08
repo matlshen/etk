@@ -7,7 +7,8 @@
 
 _ETK_BEGIN_NAMESPACE_ETK
 
-template <size_t StackSize, typename TQueueType, size_t TQueueSize = 1> class active_object {
+template <size_t StackSize, typename TQueueType, size_t TQueueSize = 1>
+class active_object {
   private:
     thread<StackSize> __thread_;
     message_queue<TQueueType, TQueueSize> __queue_;
@@ -18,26 +19,26 @@ template <size_t StackSize, typename TQueueType, size_t TQueueSize = 1> class ac
     active_object(priority prio) noexcept
         : __thread_(prio, active_object::static_thread_entry, this) {}
 
-    active_object(const char *name, priority prio) noexcept
+    active_object(const char* name, priority prio) noexcept
         : __thread_(name, prio, active_object::static_thread_entry, this) {}
 
-    active_object &operator=(const active_object &) = delete;
+    active_object& operator=(const active_object&) = delete;
 
     ~active_object() = default;
 
-    void send(const TQueueType &message) { __queue_.send(message); }
+    void send(const TQueueType& message) { __queue_.send(message); }
 
-    bool try_send(const TQueueType &message) {
+    bool try_send(const TQueueType& message) {
         return __queue_.try_send(message);
     }
 
     void join() { __thread_.join(); }
 
-    virtual bool process(TQueueType &msg) = 0;
+    virtual bool process(TQueueType& msg) = 0;
 
   private:
-    static void static_thread_entry(void *arg) {
-        return static_cast<active_object *>(arg)->thread_entry();
+    static void static_thread_entry(void* arg) {
+        return static_cast<active_object*>(arg)->thread_entry();
     }
 
     void thread_entry() {

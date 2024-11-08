@@ -35,7 +35,7 @@ TEST(Testthread, GetName) {
 TEST(Testthread, GetId) {
     etk::thread<1024> t(testFunc1, &in, &out1);
 
-    EXPECT_NE(reinterpret_cast<long>(t.get_id()), 0);
+    EXPECT_NE(reinterpret_cast<unsigned long>(t.get_id()), 0);
     t.join();
 }
 

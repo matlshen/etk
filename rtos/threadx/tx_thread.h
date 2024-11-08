@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2012 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,10 +26,10 @@
 /*  COMPONENT DEFINITION                                   RELEASE        */
 /*                                                                        */
 /*    tx_thread.h                                         PORTABLE C      */
-/*                                                           5.6          */
+/*                                                           6.1.9        */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    William E. Lamie, Express Logic, Inc.                               */
+/*    William E. Lamie, Microsoft Corporation                             */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -53,47 +41,16 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-12-2005     William E. Lamie         Initial Version 5.0           */
-/*  04-02-2007     William E. Lamie         Modified comment(s),          */
-/*                                            replaced UL constant        */
-/*                                            modifier with ULONG cast,   */
-/*                                            added logic to use preset   */
-/*                                            global C data, resulting    */
-/*                                            in version 5.1              */
-/*  12-12-2008     William E. Lamie         Modified comment(s), added    */
-/*                                            new system resume and       */
-/*                                            suspend function prototypes,*/
-/*                                            changed macro MOD32 to      */
-/*                                            TX_MOD32_BIT_SET, added     */
-/*                                            TX_DIV32_BIT_SET macro,     */
-/*                                            removed old lowest bit set  */
-/*                                            table, added new state      */
-/*                                            change macro, added macro   */
-/*                                            to pickup current thread,   */
-/*                                            added macro to clear the    */
-/*                                            current thread, added stack */
-/*                                            checking macro, and added   */
-/*                                            new macro for calculating   */
-/*                                            the lowest bit set,         */
-/*                                            resulting in version 5.2    */
-/*  07-04-2009     William E. Lamie         Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  12-12-2009     William E. Lamie         Modified comment(s), removed  */
-/*                                            type conversion in lowest   */
-/*                                            set bit macro, added macro  */
-/*                                            to get the system state, and*/
-/*                                            removed redundant prototype,*/
-/*                                            resulting in version 5.4    */
-/*  07-15-2011     William E. Lamie         Modified comment(s), and      */
-/*                                            added interrupt protection  */
-/*                                            to stack checking macro,    */
-/*                                            resulting in version 5.5    */
-/*  11-01-2012     William E. Lamie         Modified comment(s), and      */
-/*                                            added function pointer for  */
-/*                                            releasing any owned mutexes */
-/*                                            when thread completes or    */
-/*                                            is terminated,              */
-/*                                            resulting in version 5.6    */
+/*  05-19-2020     William E. Lamie         Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
+/*  11-09-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            moved TX_THREAD_GET_SYSTEM_ */
+/*                                            STATE to tx_api.h,          */
+/*                                            resulting in version 6.1.2  */
+/*  10-15-2021     Scott Larson             Modified comment(s), improved */
+/*                                            stack check error handling, */
+/*                                            resulting in version 6.1.9  */
 /*                                                                        */
 /**************************************************************************/
 
@@ -104,24 +61,22 @@
 /* Define thread control specific data definitions.  */
 
 #define TX_THREAD_ID                            ((ULONG) 0x54485244)
-#define TX_THREAD_MAX_BYTE_VALUES               256
 #define TX_THREAD_PRIORITY_GROUP_MASK           ((ULONG) 0xFF)
-#define TX_THREAD_PRIORITY_GROUP_SIZE           8
-#define TX_THREAD_EXECUTE_LOG_SIZE              8
+#define TX_THREAD_EXECUTE_LOG_SIZE              ((UINT) 8)
 
 
 /* Define the MOD32 bit set macro that is used to set/clear a priority bit within a specific
    priority group.  */
 
 #if TX_MAX_PRIORITIES > 32
-#define MAP_INDEX                               map_index
+#define MAP_INDEX                               (map_index)
 #ifndef TX_MOD32_BIT_SET
-#define TX_MOD32_BIT_SET(a,b)                   b = (((ULONG) 1) << (a%32));
+#define TX_MOD32_BIT_SET(a,b)                   (b) = (((ULONG) 1) << ((a)%((UINT)32)));
 #endif
 #else
-#define MAP_INDEX                               0
+#define MAP_INDEX                               (0)
 #ifndef TX_MOD32_BIT_SET
-#define TX_MOD32_BIT_SET(a,b)                   b = (((ULONG) 1) << (a));
+#define TX_MOD32_BIT_SET(a,b)                   (b) = (((ULONG) 1) << ((a)));
 #endif
 #endif
 
@@ -130,9 +85,8 @@
    only necessary when using priorities greater than 32.  */
 
 #if TX_MAX_PRIORITIES > 32
-#define MAP_INDEX                               map_index
 #ifndef TX_DIV32_BIT_SET
-#define TX_DIV32_BIT_SET(a,b)                   b = (((ULONG) 1) << (a/32));
+#define TX_DIV32_BIT_SET(a,b)                   (b) = (((ULONG) 1) << ((a)/((UINT) 32)));
 #endif
 #endif
 
@@ -150,7 +104,7 @@
    access the global current thread pointer directly.  */
 
 #ifndef TX_THREAD_GET_CURRENT
-#define TX_THREAD_GET_CURRENT(a)            a =  _tx_thread_current_ptr;
+#define TX_THREAD_GET_CURRENT(a)            (a) =  _tx_thread_current_ptr;
 #endif
 
 
@@ -159,14 +113,38 @@
    access the global current thread pointer directly.  */
 
 #ifndef TX_THREAD_SET_CURRENT
-#define TX_THREAD_SET_CURRENT(a)            _tx_thread_current_ptr =  a;
+#define TX_THREAD_SET_CURRENT(a)            _tx_thread_current_ptr =  (a);
 #endif
 
 
-/* Define the get system state macro. By default, it simply maps to the variable _tx_thread_system_state.  */
 
+/* Define the get system state macro. By default, it simply maps to the variable _tx_thread_system_state.  */
+/* This symbol is moved to tx_api.h. Therefore removed from this file.
 #ifndef TX_THREAD_GET_SYSTEM_STATE
 #define TX_THREAD_GET_SYSTEM_STATE()        _tx_thread_system_state
+#endif
+*/
+
+/* Define the check for whether or not to call the _tx_thread_system_return function.  A non-zero value
+   indicates that _tx_thread_system_return should not be called.  */
+
+#ifndef TX_THREAD_SYSTEM_RETURN_CHECK
+#define TX_THREAD_SYSTEM_RETURN_CHECK(c)    (c) = (ULONG) _tx_thread_preempt_disable; (c) = (c) | TX_THREAD_GET_SYSTEM_STATE();
+#endif
+
+
+/* Define the timeout setup macro used in _tx_thread_create.  */
+
+#ifndef TX_THREAD_CREATE_TIMEOUT_SETUP
+#define TX_THREAD_CREATE_TIMEOUT_SETUP(t)    (t) -> tx_thread_timer.tx_timer_internal_timeout_function =  &(_tx_thread_timeout);                \
+                                             (t) -> tx_thread_timer.tx_timer_internal_timeout_param =     TX_POINTER_TO_ULONG_CONVERT((t));
+#endif
+
+
+/* Define the thread timeout pointer setup macro used in _tx_thread_timeout.  */
+
+#ifndef TX_THREAD_TIMEOUT_POINTER_SETUP
+#define TX_THREAD_TIMEOUT_POINTER_SETUP(t)   (t) =  TX_ULONG_TO_THREAD_POINTER_CONVERT(timeout_input);
 #endif
 
 
@@ -175,65 +153,65 @@
    instructions in the architecture.  */
 
 #ifndef TX_LOWEST_SET_BIT_CALCULATE
-#define TX_LOWEST_SET_BIT_CALCULATE(m, b)   \
-    b =  0;                                 \
-    m =  m & ((~m) + 1);                    \
-    if (m < 0x10)                           \
-    {                                       \
-        if (m >= 4)                         \
-        {                                   \
-            m = m >> 2;                     \
-            b = b + 2;                      \
-        }                                   \
-        b = b + (m >> 1);                   \
-    }                                       \
-    else if (m < 0x100)                     \
-    {                                       \
-        m = m >> 4;                         \
-        b = b + 4;                          \
-        if (m >= 4)                         \
-        {                                   \
-            m = m >> 2;                     \
-            b = b + 2;                      \
-        }                                   \
-        b = b + (m >> 1);                   \
-    }                                       \
-    else if (m < 0x10000)                   \
-    {                                       \
-        m = m >> 8;                         \
-        b = b + 8;                          \
-        if (m >= 0x10)                      \
-        {                                   \
-            m = m >> 4;                     \
-            b = b + 4;                      \
-        }                                   \
-        if (m >= 4)                         \
-        {                                   \
-            m = m >> 2;                     \
-            b = b + 2;                      \
-        }                                   \
-        b = b + (m >> 1);                   \
-    }                                       \
-    else                                    \
-    {                                       \
-        m = m >> 16;                        \
-        b = b + 16;                         \
-        if (m >= 0x100)                     \
-        {                                   \
-            m = m >> 8;                     \
-            b = b + 8;                      \
-        }                                   \
-        if (m >= 16)                        \
-        {                                   \
-            m = m >> 4;                     \
-            b = b + 4;                      \
-        }                                   \
-        if (m >= 4)                         \
-        {                                   \
-            m = m >> 2;                     \
-            b = b + 2;                      \
-        }                                   \
-        b = b + (m >> 1);                   \
+#define TX_LOWEST_SET_BIT_CALCULATE(m, b)       \
+    (b) =  ((ULONG) 0);                         \
+    (m) =  (m) & ((~(m)) + ((ULONG) 1));        \
+    if ((m) < ((ULONG) 0x10))                   \
+    {                                           \
+        if ((m) >= ((ULONG) 4))                 \
+        {                                       \
+            (m) = (m) >> ((ULONG) 2);           \
+            (b) = (b) + ((ULONG) 2);            \
+        }                                       \
+        (b) = (b) + ((m) >> ((ULONG) 1));       \
+    }                                           \
+    else if ((m) < ((ULONG) 0x100))             \
+    {                                           \
+        (m) = (m) >> ((ULONG) 4);               \
+        (b) = (b) + ((ULONG) 4);                \
+        if ((m) >= ((ULONG) 4))                 \
+        {                                       \
+            (m) = (m) >> ((ULONG) 2);           \
+            (b) = (b) + ((ULONG) 2);            \
+        }                                       \
+        (b) = (b) + ((m) >> ((ULONG) 1));       \
+    }                                           \
+    else if ((m) < ((ULONG) 0x10000))           \
+    {                                           \
+        (m) = (m) >> ((ULONG) 8);               \
+        (b) = (b) + ((ULONG) 8);                \
+        if ((m) >= ((ULONG) 0x10))              \
+        {                                       \
+            (m) = (m) >> ((ULONG) 4);           \
+            (b) = (b) + ((ULONG) 4);            \
+        }                                       \
+        if ((m) >= ((ULONG) 4))                 \
+        {                                       \
+            (m) = (m) >> ((ULONG) 2);           \
+            (b) = (b) + ((ULONG) 2);            \
+        }                                       \
+        (b) = (b) + ((m) >> ((ULONG) 1));       \
+    }                                           \
+    else                                        \
+    {                                           \
+        (m) = (m) >> ((ULONG) 16);              \
+        (b) = (b) + ((ULONG) 16);               \
+        if ((m) >= ((ULONG) 0x100))             \
+        {                                       \
+            (m) = (m) >> ((ULONG) 8);           \
+            (b) = (b) + ((ULONG) 8);            \
+        }                                       \
+        if ((m) >= ((ULONG) 16))                \
+        {                                       \
+            (m) = (m) >> ((ULONG) 4);           \
+            (b) = (b) + ((ULONG) 4);            \
+        }                                       \
+        if ((m) >= ((ULONG) 4))                 \
+        {                                       \
+            (m) = (m) >> ((ULONG) 2);           \
+            (b) = (b) + ((ULONG) 2);            \
+        }                                       \
+        (b) = (b) + ((m) >> ((ULONG) 1));       \
     }
 #endif
 
@@ -244,116 +222,74 @@
    grow from high address to low address.  */
 
 #ifndef TX_THREAD_STACK_CHECK
-#define TX_THREAD_STACK_CHECK(thread_ptr)                                                                                   \
-    {                                                                                                                       \
-    TX_INTERRUPT_SAVE_AREA                                                                                                  \
-        TX_DISABLE                                                                                                          \
-        if ((thread_ptr) && (thread_ptr -> tx_thread_id == TX_THREAD_ID))                                                   \
-        {                                                                                                                   \
-            if (((ULONG *) thread_ptr -> tx_thread_stack_ptr) < ((ULONG *) thread_ptr -> tx_thread_stack_highest_ptr))      \
-            {                                                                                                               \
-                thread_ptr -> tx_thread_stack_highest_ptr =  thread_ptr -> tx_thread_stack_ptr;                             \
-            }                                                                                                               \
-            if ((*((ULONG *) thread_ptr -> tx_thread_stack_start) != TX_STACK_FILL) ||                                      \
-                (*((ULONG *) (((UCHAR *) thread_ptr -> tx_thread_stack_end) + 1)) != TX_STACK_FILL) ||                      \
-                (((ULONG *) thread_ptr -> tx_thread_stack_highest_ptr) < ((ULONG *) thread_ptr -> tx_thread_stack_start)))  \
-            {                                                                                                               \
-                TX_RESTORE                                                                                                  \
-                _tx_thread_stack_error_handler(thread_ptr);                                                                 \
-                TX_DISABLE                                                                                                  \
-            }                                                                                                               \
-            if (*(((ULONG *) thread_ptr -> tx_thread_stack_highest_ptr) - 1) != TX_STACK_FILL)                              \
-            {                                                                                                               \
-                TX_RESTORE                                                                                                  \
-                _tx_thread_stack_analyze(thread_ptr);                                                                       \
-                TX_DISABLE                                                                                                  \
-            }                                                                                                               \
-        }                                                                                                                   \
-        TX_RESTORE                                                                                                          \
+#define TX_THREAD_STACK_CHECK(thread_ptr)                                                                                       \
+    {                                                                                                                           \
+    TX_INTERRUPT_SAVE_AREA                                                                                                      \
+        TX_DISABLE                                                                                                              \
+        if (((thread_ptr)) && ((thread_ptr) -> tx_thread_id == TX_THREAD_ID))                                                   \
+        {                                                                                                                       \
+            if (((ULONG *) (thread_ptr) -> tx_thread_stack_ptr) < ((ULONG *) (thread_ptr) -> tx_thread_stack_highest_ptr))      \
+            {                                                                                                                   \
+                (thread_ptr) -> tx_thread_stack_highest_ptr =  (thread_ptr) -> tx_thread_stack_ptr;                             \
+            }                                                                                                                   \
+            if ((*((ULONG *) (thread_ptr) -> tx_thread_stack_start) != TX_STACK_FILL) ||                                        \
+                (*((ULONG *) (((UCHAR *) (thread_ptr) -> tx_thread_stack_end) + 1)) != TX_STACK_FILL) ||                        \
+                (((ULONG *) (thread_ptr) -> tx_thread_stack_highest_ptr) < ((ULONG *) (thread_ptr) -> tx_thread_stack_start)))  \
+            {                                                                                                                   \
+                TX_RESTORE                                                                                                      \
+                _tx_thread_stack_error_handler((thread_ptr));                                                                   \
+                TX_DISABLE                                                                                                      \
+            }                                                                                                                   \
+            if (*(((ULONG *) (thread_ptr) -> tx_thread_stack_highest_ptr) - 1) != TX_STACK_FILL)                                \
+            {                                                                                                                   \
+                TX_RESTORE                                                                                                      \
+                _tx_thread_stack_analyze((thread_ptr));                                                                         \
+                TX_DISABLE                                                                                                      \
+            }                                                                                                                   \
+        }                                                                                                                       \
+        TX_RESTORE                                                                                                              \
     }
 #endif
 
 
-/* Define thread control function prototypes.  */
+/* Define default post thread delete macro to whitespace, if it hasn't been defined previously (typically in tx_port.h).  */
 
-VOID        _tx_thread_context_save(VOID);
-VOID        _tx_thread_context_restore(VOID);
-UINT        _tx_thread_create(TX_THREAD *thread_ptr, const CHAR *name_ptr,
-                VOID (*entry_function)(ULONG), ULONG entry_input,
-                VOID *stack_start, ULONG stack_size,
-                UINT priority, UINT preempt_threshold,
-                ULONG time_slice, UINT auto_start);
-UINT        _tx_thread_delete(TX_THREAD *thread_ptr);
-UINT        _tx_thread_entry_exit_notify(TX_THREAD *thread_ptr, VOID (*thread_entry_exit_notify)(TX_THREAD *, UINT));
-TX_THREAD  *_tx_thread_identify(VOID);
-UINT        _tx_thread_info_get(TX_THREAD *thread_ptr, const CHAR **name, UINT *state, ULONG *run_count,
-                UINT *priority, UINT *preemption_threshold, ULONG *time_slice,
-                TX_THREAD **next_thread, TX_THREAD **next_suspended_thread);
+#ifndef TX_THREAD_DELETE_PORT_COMPLETION
+#define TX_THREAD_DELETE_PORT_COMPLETION(t)
+#endif
+
+
+/* Define default post thread reset macro to whitespace, if it hasn't been defined previously (typically in tx_port.h).  */
+
+#ifndef TX_THREAD_RESET_PORT_COMPLETION
+#define TX_THREAD_RESET_PORT_COMPLETION(t)
+#endif
+
+
+/* Define the thread create internal extension macro to whitespace, if it hasn't been defined previously (typically in tx_port.h).  */
+
+#ifndef TX_THREAD_CREATE_INTERNAL_EXTENSION
+#define TX_THREAD_CREATE_INTERNAL_EXTENSION(t)
+#endif
+
+
+/* Define internal thread control function prototypes.  */
+
 VOID        _tx_thread_initialize(VOID);
-UINT        _tx_thread_interrupt_control(UINT new_posture);
-UINT        _tx_thread_performance_info_get(TX_THREAD *thread_ptr, ULONG *resumptions, ULONG *suspensions,
-                ULONG *solicited_preemptions, ULONG *interrupt_preemptions, ULONG *priority_inversions,
-                ULONG *time_slices, ULONG *relinquishes, ULONG *timeouts, ULONG *wait_aborts, TX_THREAD **last_preempted_by);
-UINT        _tx_thread_performance_system_info_get(ULONG *resumptions, ULONG *suspensions,
-                ULONG *solicited_preemptions, ULONG *interrupt_preemptions, ULONG *priority_inversions,
-                ULONG *time_slices, ULONG *relinquishes, ULONG *timeouts, ULONG *wait_aborts,
-                ULONG *non_idle_returns, ULONG *idle_returns);
-UINT        _tx_thread_preemption_change(TX_THREAD *thread_ptr, UINT new_threshold,
-                        UINT *old_threshold);
-UINT        _tx_thread_priority_change(TX_THREAD *thread_ptr, UINT new_priority,
-                        UINT *old_priority);
-VOID        _tx_thread_relinquish(VOID);
-UINT        _tx_thread_reset(TX_THREAD *thread_ptr);
-UINT        _tx_thread_resume(TX_THREAD *thread_ptr);
 VOID        _tx_thread_schedule(VOID);
 VOID        _tx_thread_shell_entry(VOID);
-UINT        _tx_thread_sleep(ULONG timer_ticks);
 VOID        _tx_thread_stack_analyze(TX_THREAD *thread_ptr);
 VOID        _tx_thread_stack_build(TX_THREAD *thread_ptr, VOID (*function_ptr)(VOID));
 VOID        _tx_thread_stack_error(TX_THREAD *thread_ptr);
 VOID        _tx_thread_stack_error_handler(TX_THREAD *thread_ptr);
-UINT        _tx_thread_stack_error_notify(VOID (*stack_error_handler)(TX_THREAD *));
 VOID        _tx_thread_system_preempt_check(VOID);
 VOID        _tx_thread_system_resume(TX_THREAD *thread_ptr);
 VOID        _tx_thread_system_ni_resume(TX_THREAD *thread_ptr);
 VOID        _tx_thread_system_return(VOID);
 VOID        _tx_thread_system_suspend(TX_THREAD *thread_ptr);
-VOID        _tx_thread_system_ni_suspend(TX_THREAD *thread_ptr, ULONG timeout);
-UINT        _tx_thread_suspend(TX_THREAD *thread_ptr);
-UINT        _tx_thread_terminate(TX_THREAD *thread_ptr);
-UINT        _tx_thread_time_slice_change(TX_THREAD *thread_ptr, ULONG new_time_slice, ULONG *old_time_slice);
+VOID        _tx_thread_system_ni_suspend(TX_THREAD *thread_ptr, ULONG wait_option);
 VOID        _tx_thread_time_slice(VOID);
 VOID        _tx_thread_timeout(ULONG timeout_input);
-UINT        _tx_thread_wait_abort(TX_THREAD *thread_ptr);
-UINT        _tx_thread_once(TX_THREAD_ONCE *once_control, void (*once_routine)(void));
-VOID       *_tx_thread_getspecific(TX_THREAD_KEY key);
-VOID        _tx_thread_setspecific(TX_THREAD_KEY key, void *data);
-
-
-/* Define error checking shells for API services.  These are only referenced by the
-   application.  */
-
-UINT        _txe_thread_create(TX_THREAD *thread_ptr, const CHAR *name_ptr,
-                VOID (*entry_function)(ULONG), ULONG entry_input,
-                VOID *stack_start, ULONG stack_size,
-                UINT priority, UINT preempt_threshold,
-                ULONG time_slice, UINT auto_start, UINT thread_control_block_size);
-UINT        _txe_thread_delete(TX_THREAD *thread_ptr);
-UINT        _txe_thread_entry_exit_notify(TX_THREAD *thread_ptr, VOID (*thread_entry_exit_notify)(TX_THREAD *, UINT));
-UINT        _txe_thread_info_get(TX_THREAD *thread_ptr, const CHAR **name, UINT *state, ULONG *run_count,
-                UINT *priority, UINT *preemption_threshold, ULONG *time_slice,
-                TX_THREAD **next_thread, TX_THREAD **next_suspended_thread);
-UINT        _txe_thread_preemption_change(TX_THREAD *thread_ptr, UINT new_threshold,
-                        UINT *old_threshold);
-UINT        _txe_thread_priority_change(TX_THREAD *thread_ptr, UINT new_priority,
-                        UINT *old_priority);
-VOID        _txe_thread_relinquish(VOID);
-UINT        _txe_thread_reset(TX_THREAD *thread_ptr);
-UINT        _txe_thread_resume(TX_THREAD *thread_ptr);
-UINT        _txe_thread_suspend(TX_THREAD *thread_ptr);
-UINT        _txe_thread_terminate(TX_THREAD *thread_ptr);
-UINT        _txe_thread_time_slice_change(TX_THREAD *thread_ptr, ULONG new_time_slice, ULONG *old_time_slice);
-UINT        _txe_thread_wait_abort(TX_THREAD *thread_ptr);
 
 
 /* Thread control component data declarations follow.  */
@@ -362,11 +298,7 @@ UINT        _txe_thread_wait_abort(TX_THREAD *thread_ptr);
    this file.  If so, make the data definitions really happen.  Otherwise,
    make them extern so other functions in the component can access them.  */
 
-#ifdef TX_THREAD_INIT
-#define THREAD_DECLARE
-#else
 #define THREAD_DECLARE extern
-#endif
 
 
 /* Define the pointer that contains the system stack pointer.  This is
@@ -380,8 +312,6 @@ THREAD_DECLARE  VOID *          _tx_thread_system_stack_ptr;
    executing thread.  If this variable is NULL, no thread is executing.  */
 
 THREAD_DECLARE  TX_THREAD *     _tx_thread_current_ptr;
-
-THREAD_DECLARE INT _tx_current_irq;
 
 
 /* Define the variable that holds the next thread to execute.  It is important
@@ -407,11 +337,7 @@ THREAD_DECLARE  ULONG           _tx_thread_created_count;
    initialized to TX_INITIALIZE_IN_PROGRESS to indicate initialization is
    active.  */
 
-#ifdef TX_THREAD_INIT
-THREAD_DECLARE  volatile ULONG  _tx_thread_system_state =  TX_INITIALIZE_IN_PROGRESS;
-#else
 THREAD_DECLARE  volatile ULONG  _tx_thread_system_state;
-#endif
 
 
 /* Define the 32-bit priority bit-maps. There is one priority bit map for each
@@ -476,7 +402,7 @@ THREAD_DECLARE  volatile UINT   _tx_thread_preempt_disable;
 /* Define the global function pointer for mutex cleanup on thread completion or
    termination. This pointer is setup during mutex initialization.  */
 
-THREAD_DECLARE  VOID            (*_tx_thread_mutex_release)(TX_THREAD *);
+THREAD_DECLARE  VOID            (*_tx_thread_mutex_release)(TX_THREAD *thread_ptr);
 
 
 /* Define the global build options variable.  This contains a bit map representing
@@ -515,16 +441,13 @@ THREAD_DECLARE  VOID            (*_tx_thread_mutex_release)(TX_THREAD *);
 THREAD_DECLARE  ULONG           _tx_build_options;
 
 
-#ifdef TX_ENABLE_STACK_CHECKING
+#if defined(TX_ENABLE_STACK_CHECKING) || defined(TX_PORT_THREAD_STACK_ERROR_HANDLING)
 
 /* Define the global function pointer for stack error handling. If a stack error is
    detected and the application has registered a stack error handler, it will be
    called via this function pointer.  */
 
-THREAD_DECLARE  VOID            (*_tx_thread_application_stack_error_handler)(TX_THREAD *);
-
-// Number of stack bytes to check from the end of the stack..
-#	define TX_THREAD_STACK_CHECK_SIZE	256
+THREAD_DECLARE  VOID            (*_tx_thread_application_stack_error_handler)(TX_THREAD *thread_ptr);
 
 #endif
 
@@ -602,15 +525,10 @@ THREAD_DECLARE  ULONG           _tx_thread_performance_non_idle_return_count;
 /* Define the last TX_THREAD_EXECUTE_LOG_SIZE threads scheduled in ThreadX. This
    is a circular list, where the index points to the oldest entry.  */
 
-THREAD_DECLARE  ULONG           _tx_thread_performance_execute_log_index;
+THREAD_DECLARE  ULONG           _tx_thread_performance__execute_log_index;
 THREAD_DECLARE  TX_THREAD *     _tx_thread_performance_execute_log[TX_THREAD_EXECUTE_LOG_SIZE];
 
 #endif
 
-
-#ifdef TX_THREAD_INIT
-const CHAR _tx_thread_special_string[] =
-  "G-ML-EL-ML-BL-DL-BL-GB-GL-M-D-DL-GZ-KH-EL-CM-NH-HA-GF-DD-AT-DW-USA-CA-SD-SDSU";
 #endif
 
-#endif

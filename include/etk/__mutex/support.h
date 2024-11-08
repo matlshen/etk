@@ -31,12 +31,14 @@ _ETK_END_NAMESPACE_ETK
 
 */
 
-#if defined(_ETK_HAS_THREAD_API_APPLE)
-#include "etk/__mutex/support/apple.h"
+#if defined(_ETK_HAS_THREAD_API_PTHREAD)
+#    include "etk/__mutex/support/pthread.h"
+#elif defined(_ETK_HAS_THREAD_API_APPLE)
+#    include "etk/__mutex/support/pthread.h"
 #elif defined(_ETK_HAS_THREAD_API_THREADX)
-#include "etk/__mutex/support/threadx.h"
+#    include "etk/__mutex/support/threadx.h"
 #else
-#error "No mutex support API defined"
+#    error "No mutex support"
 #endif
 
 #endif // __ETK___MUTEX_SUPPORT_H_

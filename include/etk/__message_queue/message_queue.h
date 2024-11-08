@@ -11,7 +11,8 @@ _ETK_BEGIN_NAMESPACE_ETK
 
 #if defined(_ETK_HAS_NATIVE_MQUEUE)
 
-template <typename T, size_t N> class message_queue {
+template <typename T, size_t N>
+class message_queue {
   private:
     __etk_mqueue_t __mq_;
     uint8_t __buf_[N * sizeof(T)];
@@ -19,30 +20,30 @@ template <typename T, size_t N> class message_queue {
   public:
     message_queue() { ASSERT_0(__etk_mq_init(&__mq_, N, sizeof(T))); }
 
-    message_queue &operator=(const message_queue &) = delete;
+    message_queue& operator=(const message_queue&) = delete;
 
     ~message_queue() { ASSERT_0(__etk_mq_destroy(&__mq_)); }
 
-    void send(const T &message) {
-        ASSERT_0(__etk_mq_send(&__mq_, reinterpret_cast<const void *>(&message),
-                               sizeof(T)));
+    void send(const T& message) {
+        ASSERT_0(__etk_mq_send(
+            &__mq_, reinterpret_cast<const void*>(&message), sizeof(T)));
     }
 
-    bool try_send(const T &message) {
+    bool try_send(const T& message) {
         return __etk_mq_try_send(
-            &__mq_, reinterpret_cast<const void *>(&message), sizeof(T));
+            &__mq_, reinterpret_cast<const void*>(&message), sizeof(T));
     }
 
     T receive() {
         T message;
-        ASSERT_0(__etk_mq_receive(&__mq_, reinterpret_cast<void *>(&message),
-                                  sizeof(T)));
+        ASSERT_0(__etk_mq_receive(
+            &__mq_, reinterpret_cast<void*>(&message), sizeof(T)));
         return message;
     }
 
-    bool try_receive(T *message) {
-        return __etk_mq_try_receive(&__mq_, reinterpret_cast<void *>(message),
-                                    sizeof(T));
+    bool try_receive(T* message) {
+        return __etk_mq_try_receive(
+            &__mq_, reinterpret_cast<void*>(message), sizeof(T));
     }
 
     bool empty() const { return __etk_mq_empty(&__mq_); }
@@ -56,16 +57,17 @@ template <typename T, size_t N> class message_queue {
 
 #else
 
-template <typename T, size_t N> class message_queue {
+template <typename T, size_t N>
+class message_queue {
   public:
-    message_queue() noexcept = default;
-    message_queue &operator=(const message_queue &) = delete;
-    ~message_queue() noexcept = default;
+    message_queue() noexcept                       = default;
+    message_queue& operator=(const message_queue&) = delete;
+    ~message_queue() noexcept                      = default;
 
-    void send(const T &message);
-    bool try_send(const T &message);
+    void send(const T& message);
+    bool try_send(const T& message);
     T receive();
-    bool try_receive(T *message);
+    bool try_receive(T* message);
 
     bool empty() const;
     bool full() const;
@@ -83,36 +85,37 @@ template <typename T, size_t N> class message_queue {
 };
 
 template <typename T, size_t N>
-void message_queue<T, N>::send(const T &message) {
+void message_queue<T, N>::send(const T& message) {
     unique_lock lock(mutex_);
     cond_var_.wait(lock, [this]() { return !full(); });
     __arr_[__head_] = message;
-    __head_ = (__head_ + 1) % N;
+    __head_         = (__head_ + 1) % N;
     __size_++;
     cond_var_.notify_one();
 }
 
 template <typename T, size_t N>
-bool message_queue<T, N>::try_send(const T &message) {
+bool message_queue<T, N>::try_send(const T& message) {
     unique_lock lock(mutex_);
     if (full()) {
         return false; // Queue is full
     }
 
     __arr_[__head_] = message;
-    __head_ = (__head_ + 1) % capacity();
+    __head_         = (__head_ + 1) % capacity();
     ++__size_;
 
     cond_var_.notify_one();
     return true;
 }
 
-template <typename T, size_t N> T message_queue<T, N>::receive() {
+template <typename T, size_t N>
+T message_queue<T, N>::receive() {
     unique_lock lock(mutex_);
     cond_var_.wait(lock, [this]() { return !empty(); });
 
     T message = __arr_[__tail_];
-    __tail_ = (__tail_ + 1) % capacity();
+    __tail_   = (__tail_ + 1) % capacity();
     --__size_;
 
     cond_var_.notify_one();
@@ -120,29 +123,32 @@ template <typename T, size_t N> T message_queue<T, N>::receive() {
 }
 
 template <typename T, size_t N>
-bool message_queue<T, N>::try_receive(T *message) {
+bool message_queue<T, N>::try_receive(T* message) {
     unique_lock lock(mutex_);
     if (empty()) {
         return false;
     }
 
     *message = __arr_[__tail_];
-    __tail_ = (__tail_ + 1) % N;
+    __tail_  = (__tail_ + 1) % N;
     --__size_;
 
     cond_var_.notify_one();
     return true;
 }
 
-template <typename T, size_t N> bool message_queue<T, N>::empty() const {
+template <typename T, size_t N>
+bool message_queue<T, N>::empty() const {
     return __size_ == 0;
 }
 
-template <typename T, size_t N> bool message_queue<T, N>::full() const {
+template <typename T, size_t N>
+bool message_queue<T, N>::full() const {
     return __size_ == N;
 }
 
-template <typename T, size_t N> size_t message_queue<T, N>::size() const {
+template <typename T, size_t N>
+size_t message_queue<T, N>::size() const {
     return __size_;
 }
 

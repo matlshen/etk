@@ -18,7 +18,7 @@ public:
     explicit thread(priority prio, F&& f, Args&&... args) noexcept;
 
     template <class F, class ...Args>
-    explicit thread(const char *name, 
+    explicit thread(const char *name,
                     priority prio, F&& f, Args&&... args) noexcept;
 
     ~thread();

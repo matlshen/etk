@@ -1,8 +1,7 @@
 #include "etk/mutex.h"
 #include "etk/thread.h"
+#include "etk/delay.h"
 #include <gtest/gtest.h>
-
-#include <mutex>
 
 int global;
 
@@ -40,8 +39,7 @@ TEST(Testmutex, mutexTryLock) {
 void uniqueTryLock(etk::mutex *m) {
     std::unique_lock<etk::mutex> lock(*m, std::try_to_lock);
     // Random delay
-    for (volatile long i = 0; i < 100000; i++)
-        ;
+    etk::delay::cycles(1000000);
     if (lock.owns_lock()) {
         global++;
     }

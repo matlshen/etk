@@ -1,192 +1,80 @@
----
-Language:        Cpp
-# BasedOnStyle:  LLVM
-AccessModifierOffset: -2
+BasedOnStyle: LLVM
+# Note that we don't specify the language in this file because some files are
+# detected as Cpp, but others are detected as ObjC and we want this formatting
+# to apply to all types of files.
+
 AlignAfterOpenBracket: Align
-AlignArrayOfStructures: None
-AlignConsecutiveMacros: None
-AlignConsecutiveAssignments: None
-AlignConsecutiveBitFields: None
-AlignConsecutiveDeclarations: None
+AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveBitFields: Consecutive
 AlignEscapedNewlines: Right
-AlignOperands:   Align
+AlignOperands: AlignAfterOperator
 AlignTrailingComments: true
 AllowAllArgumentsOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortEnumsOnASingleLine: true
-AllowShortBlocksOnASingleLine: Never
-AllowShortCaseLabelsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: All
+AllowShortFunctionsOnASingleLine: true
 AllowShortLambdasOnASingleLine: All
-AllowShortIfStatementsOnASingleLine: Never
-AllowShortLoopsOnASingleLine: false
-AlwaysBreakAfterDefinitionReturnType: None
-AlwaysBreakAfterReturnType: None
-AlwaysBreakBeforeMultilineStrings: false
-AlwaysBreakTemplateDeclarations: MultiLine
-AttributeMacros:
-  - __capability
-BinPackArguments: true
-BinPackParameters: true
-BraceWrapping:
-  AfterCaseLabel:  false
-  AfterClass:      false
-  AfterControlStatement: Never
-  AfterEnum:       false
-  AfterFunction:   false
-  AfterNamespace:  false
-  AfterObjCDeclaration: false
-  AfterStruct:     false
-  AfterUnion:      false
-  AfterExternBlock: false
-  BeforeCatch:     false
-  BeforeElse:      false
-  BeforeLambdaBody: false
-  BeforeWhile:     false
-  IndentBraces:    false
-  SplitEmptyFunction: true
-  SplitEmptyRecord: true
-  SplitEmptyNamespace: true
-BreakBeforeBinaryOperators: None
+AttributeMacros: [
+                  '_ALIGNAS_TYPE',
+                  '_ALIGNAS',
+                  '_LIBCPP_ALIGNOF',
+                  '_LIBCPP_ALWAYS_INLINE',
+                  '_LIBCPP_CONSTEXPR_SINCE_CXX14',
+                  '_LIBCPP_CONSTEXPR_SINCE_CXX17',
+                  '_LIBCPP_CONSTEXPR_SINCE_CXX20',
+                  '_LIBCPP_CONSTEXPR_SINCE_CXX23',
+                  '_LIBCPP_CONSTEXPR',
+                  '_LIBCPP_CONSTINIT',
+                  '_LIBCPP_DEPRECATED_IN_CXX11',
+                  '_LIBCPP_DEPRECATED_IN_CXX14',
+                  '_LIBCPP_DEPRECATED_IN_CXX17',
+                  '_LIBCPP_DEPRECATED_IN_CXX20',
+                  '_LIBCPP_DEPRECATED_IN_CXX23',
+                  '_LIBCPP_DEPRECATED',
+                  '_LIBCPP_DISABLE_EXTENSION_WARNING',
+                  '_LIBCPP_EXCLUDE_FROM_EXPLICIT_INSTANTIATION',
+                  '_LIBCPP_EXPORTED_FROM_ABI',
+                  '_LIBCPP_EXTERN_TEMPLATE_TYPE_VIS',
+                  '_LIBCPP_FALLTHROUGH',
+                  '_LIBCPP_HIDDEN',
+                  '_LIBCPP_HIDE_FROM_ABI_AFTER_V1',
+                  '_LIBCPP_HIDE_FROM_ABI',
+                  '_LIBCPP_METHOD_TEMPLATE_IMPLICIT_INSTANTIATION_VIS',
+                  '_LIBCPP_NO_SANITIZE',
+                  '_LIBCPP_NO_UNIQUE_ADDRESS',
+                  '_LIBCPP_NOALIAS',
+                  '_LIBCPP_OVERRIDABLE_FUNC_VIS',
+                  '_LIBCPP_STANDALONE_DEBUG',
+                  '_LIBCPP_TEMPLATE_DATA_VIS',
+                  '_LIBCPP_TEMPLATE_VIS',
+                  '_LIBCPP_THREAD_SAFETY_ANNOTATION',
+                  '_LIBCPP_USING_IF_EXISTS',
+                  '_LIBCPP_WEAK',
+                 ]
+BinPackArguments: false
+BinPackParameters: false
 BreakBeforeConceptDeclarations: true
-BreakBeforeBraces: Attach
-BreakBeforeInheritanceComma: false
 BreakInheritanceList: BeforeColon
-BreakBeforeTernaryOperators: true
-BreakConstructorInitializersBeforeComma: false
-BreakConstructorInitializers: BeforeColon
-BreakAfterJavaFieldAnnotations: false
-BreakStringLiterals: true
-ColumnLimit:     80
-CommentPragmas:  '^ IWYU pragma:'
-QualifierAlignment: Leave
-CompactNamespaces: false
-ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 4
-Cpp11BracedListStyle: true
-DeriveLineEnding: true
-DerivePointerAlignment: false
-DisableFormat:   false
 EmptyLineAfterAccessModifier: Never
-EmptyLineBeforeAccessModifier: LogicalBlock
-ExperimentalAutoDetectBinPacking: false
-PackConstructorInitializers: BinPack
-BasedOnStyle:    ''
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
-AllowAllConstructorInitializersOnNextLine: true
-FixNamespaceComments: true
-ForEachMacros:
-  - foreach
-  - Q_FOREACH
-  - BOOST_FOREACH
-IfMacros:
-  - KJ_IF_MAYBE
-IncludeBlocks:   Preserve
-IncludeCategories:
-  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
-    Priority:        2
-    SortPriority:    0
-    CaseSensitive:   false
-  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
-    Priority:        3
-    SortPriority:    0
-    CaseSensitive:   false
-  - Regex:           '.*'
-    Priority:        1
-    SortPriority:    0
-    CaseSensitive:   false
-IncludeIsMainRegex: '(Test)?$'
-IncludeIsMainSourceRegex: ''
-IndentAccessModifiers: false
-IndentCaseLabels: false
-IndentCaseBlocks: false
-IndentGotoLabels: true
-IndentPPDirectives: None
-IndentExternBlock: AfterExternBlock
-IndentRequires:  false
-IndentWidth:     4
+EmptyLineBeforeAccessModifier: Always
 IndentWrappedFunctionNames: false
-InsertTrailingCommas: None
-JavaScriptQuotes: Leave
-JavaScriptWrapImports: true
-KeepEmptyLinesAtTheStartOfBlocks: true
-LambdaBodyIndentation: Signature
-MacroBlockBegin: ''
-MacroBlockEnd:   ''
+IndentRequires: true
+InsertTrailingCommas: Wrapped
+KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1
-NamespaceIndentation: None
-ObjCBinPackProtocolList: Auto
-ObjCBlockIndentWidth: 2
-ObjCBreakBeforeNestedBlockParam: true
-ObjCSpaceAfterProperty: false
-ObjCSpaceBeforeProtocolList: true
-PenaltyBreakAssignment: 2
-PenaltyBreakBeforeFirstCallParameter: 19
-PenaltyBreakComment: 300
-PenaltyBreakFirstLessLess: 120
-PenaltyBreakOpenParenthesis: 0
-PenaltyBreakString: 1000
-PenaltyBreakTemplateDeclaration: 10
-PenaltyExcessCharacter: 1000000
-PenaltyReturnTypeOnItsOwnLine: 60
-PenaltyIndentedWhitespace: 0
-PointerAlignment: Right
-PPIndentWidth:   -1
-ReferenceAlignment: Pointer
-ReflowComments:  true
-RemoveBracesLLVM: false
-SeparateDefinitionBlocks: Leave
-ShortNamespaceLines: 1
-SortIncludes:    CaseSensitive
-SortJavaStaticImport: Before
-SortUsingDeclarations: true
-SpaceAfterCStyleCast: false
-SpaceAfterLogicalNot: false
-SpaceAfterTemplateKeyword: true
-SpaceBeforeAssignmentOperators: true
-SpaceBeforeCaseColon: false
-SpaceBeforeCpp11BracedList: false
-SpaceBeforeCtorInitializerColon: true
-SpaceBeforeInheritanceColon: true
-SpaceBeforeParens: ControlStatements
-SpaceBeforeParensOptions:
-  AfterControlStatements: true
-  AfterForeachMacros: true
-  AfterFunctionDefinitionName: false
-  AfterFunctionDeclarationName: false
-  AfterIfMacros:   true
-  AfterOverloadedOperator: false
-  BeforeNonEmptyParentheses: false
-SpaceAroundPointerQualifiers: Default
-SpaceBeforeRangeBasedForLoopColon: true
-SpaceInEmptyBlock: false
-SpaceInEmptyParentheses: false
-SpacesBeforeTrailingComments: 1
-SpacesInAngles:  Never
-SpacesInConditionalStatement: false
-SpacesInContainerLiterals: true
-SpacesInCStyleCastParentheses: false
-SpacesInLineCommentPrefix:
-  Minimum:         1
-  Maximum:         -1
-SpacesInParentheses: false
-SpacesInSquareBrackets: false
-SpaceBeforeSquareBrackets: false
-BitFieldColonSpacing: Both
-Standard:        Latest
-StatementAttributeLikeMacros:
-  - Q_EMIT
-StatementMacros:
-  - Q_UNUSED
-  - QT_REQUIRE_VERSION
-TabWidth:        8
-UseCRLF:         false
-UseTab:          Never
-WhitespaceSensitiveMacros:
-  - STRINGIZE
-  - PP_STRINGIZE
-  - BOOST_PP_STRINGIZE
-  - NS_SWIFT_NAME
-  - CF_SWIFT_NAME
-...
+PackConstructorInitializers: NextLine
 
+PenaltyIndentedWhitespace: 2
+
+Standard: c++20
+SpacesInAngles: Leave
+
+AlwaysBreakTemplateDeclarations: true
+PointerAlignment: Left
+IndentWidth: 4
+
+
+# libc++'s preferred indentions of preprocessor statements.
+IndentPPDirectives: AfterHash
+
+# libc++ has some long names so we need more than the 80 column limit imposed by LLVM style, for sensible formatting
+ColumnLimit: 80

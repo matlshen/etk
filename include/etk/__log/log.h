@@ -3,30 +3,27 @@
 
 #include "etk/__config.h"
 #include "etk/__log/support.h"
+#include "etk/__print/print.h"
+#include "etk/__thread/this_thread.h"
 
 _ETK_BEGIN_NAMESPACE_ETK
 
-
 class log {
-public:
+  public:
     static constexpr int FATAL_LVL = 0;
     static constexpr int ERROR_LVL = 1;
-    static constexpr int WARN_LVL = 2;
-    static constexpr int INFO_LVL = 3;
+    static constexpr int WARN_LVL  = 2;
+    static constexpr int INFO_LVL  = 3;
     static constexpr int DEBUG_LVL = 4;
-    
-    static bool set_level(int level) {
-        return __etk_set_log_level(level);
-    }
 
-    static int get_level() {
-        return __etk_get_log_level();
-    }
+    static bool set_level(int level) { return __etk_set_log_level(level); }
+
+    static int get_level() { return __etk_get_log_level(); }
 
     static void fatal(const char* fmt, ...) {
         va_list args;
         va_start(args, fmt);
-        __etk_log(FATAL_LVL, fmt, &args);
+        printf("[FATAL] ");
         va_end(args);
     }
 

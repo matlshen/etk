@@ -1,5 +1,6 @@
 #include "etk/__thread/thread.h"
 #include "etk/event_flags.h"
+#include "etk/delay.h"
 #include <gtest/gtest.h>
 
 TEST(EventFlagsTest, SetFlag) {
@@ -69,7 +70,7 @@ TEST(EventFlagsTest, WakeMultipleClear) {
     etk::thread t1(wait_thread, &flags, &global);
     etk::thread t2(wait_thread, &flags, &global);
     flags.set(0b01);
-    for (volatile int i = 0; i < 1000000; i++);
+    etk::delay::cycles(1000000);
     EXPECT_EQ(global, 1);
     flags.set(0b01);
     t1.join();

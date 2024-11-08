@@ -24,7 +24,7 @@ _ETK_END_NAMESPACE_ETK
 #include "etk/__config.h"
 
 #if defined(_ETK_HAS_THREAD_API_THREADX)
-#include "etk/__event_flags/support/threadx.h"
+#    include "etk/__event_flags/support/threadx.h"
 #endif
 
 #endif // _ETK___EVENT_FLAGS_SUPPORT_H_

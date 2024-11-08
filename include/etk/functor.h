@@ -7,7 +7,8 @@
 
 _ETK_BEGIN_NAMESPACE_ETK
 
-template <class _Fp> class functor {
+template <class _Fp>
+class functor {
     using _Callable = std::decay_t<_Fp>;
     _Callable __c_;
     bool __empty_;
@@ -23,7 +24,7 @@ template <class _Fp> class functor {
      *
      * @tparam __f Pointer to underlying callable object.
      */
-    functor(_Fp &&__f) noexcept
+    functor(_Fp&& __f) noexcept
         : __c_(std::forward<_Fp>(__f)), __empty_(false) {}
 
     /**
@@ -33,7 +34,7 @@ template <class _Fp> class functor {
      * @return Return value of the callable object.
      */
     template <class... _Args>
-    auto operator()(_Args &&...__args) -> decltype(auto) {
+    auto operator()(_Args&&... __args) -> decltype(auto) {
         if (__empty_) {
             using _ReturnType = decltype(__c_(std::forward<_Args>(__args)...));
             return _ReturnType();
@@ -49,7 +50,8 @@ template <class _Fp> class functor {
     bool empty() const noexcept { return __empty_; }
 };
 
-template <class... _Args> class functor_args {
+template <class... _Args>
+class functor_args {
     std::tuple<_Args...> __args_;
 
   public:
@@ -58,7 +60,7 @@ template <class... _Args> class functor_args {
      *
      * @tparam __args Arguments to pass to the functor.
      */
-    functor_args(_Args &&...__args) : __args_(std::forward<_Args>(__args)...) {}
+    functor_args(_Args&&... __args) : __args_(std::forward<_Args>(__args)...) {}
 
     /**
      * @brief Get the arguments.
@@ -78,9 +80,9 @@ class functorCaller {
      * @return functor return value.
      */
     template <class _Fp, class... _Args>
-    static inline auto call(functor<_Fp> &__fc,
-                            const functor_args<_Args...> &__args)
-        -> decltype(auto) {
+    static inline auto
+    call(functor<_Fp>& __fc,
+         const functor_args<_Args...>& __args) -> decltype(auto) {
         return std::apply(__fc, __args.getArgs());
     }
 
@@ -91,7 +93,7 @@ class functorCaller {
      * @return functor return value.
      */
     template <class _Fp>
-    static inline auto call(functor<_Fp> &__fc) -> decltype(auto) {
+    static inline auto call(functor<_Fp>& __fc) -> decltype(auto) {
         return __fc();
     }
 };

@@ -1,14 +1,14 @@
-#ifndef _ETK___THREAD_SUPPORT_APPLE_H_
-#define _ETK___THREAD_SUPPORT_APPLE_H_
+#ifndef _ETK___THREAD_SUPPORT_PTHREAD_H_
+#define _ETK___THREAD_SUPPORT_PTHREAD_H_
 
 #include "etk/__config.h"
 #include "etk/assert.h"
 #include <pthread.h>
 #include <sched.h>
-#include <unistd.h>
 #include <time.h>
+#include <unistd.h>
 
-#include "etk/__mutex/support/apple.h"
+#include "etk/__mutex/support/pthread.h"
 #include "etk/assert.h"
 
 _ETK_BEGIN_NAMESPACE_ETK
@@ -19,14 +19,14 @@ _ETK_BEGIN_NAMESPACE_ETK
 typedef pthread_t __etk_thread_id;
 
 // Returns non-zero if the thread ids are equal, otherwise 0
-inline _ETK_API_INTERNAL bool __etk_thread_id_equal(__etk_thread_id __t1,
-                                                    __etk_thread_id __t2) {
+inline _ETK_API_INTERNAL bool
+__etk_thread_id_equal(__etk_thread_id __t1, __etk_thread_id __t2) {
     return __t1 == __t2;
 }
 
 // Returns non-zero if t1 < t2, otherwise 0
-inline _ETK_API_INTERNAL bool __etk_thread_id_less(__etk_thread_id __t1,
-                                                   __etk_thread_id __t2) {
+inline _ETK_API_INTERNAL bool
+__etk_thread_id_less(__etk_thread_id __t1, __etk_thread_id __t2) {
     return __t1 < __t2;
 }
 
@@ -36,22 +36,26 @@ inline _ETK_API_INTERNAL bool __etk_thread_id_less(__etk_thread_id __t1,
 #define _ETK_NULL_THREAD ((__etk_thread_t){{}, ""})
 struct __etk_thread_t {
     pthread_t __t_;
-    const char *__name_;
+    const char* __name_;
 };
 
 inline _ETK_API_INTERNAL __etk_thread_id
-__etk_thread_get_id(const __etk_thread_t *__t) {
+__etk_thread_get_id(const __etk_thread_t* __t) {
     return __t->__t_;
 }
 
-inline _ETK_API_INTERNAL bool __etk_thread_isnull(const __etk_thread_t *__t) {
+inline _ETK_API_INTERNAL bool __etk_thread_isnull(const __etk_thread_t* __t) {
     return __etk_thread_get_id(__t) == 0;
 }
 
-inline _ETK_API_INTERNAL int
-__etk_thread_create(__etk_thread_t *__t, const char *__name,
-                    void *(*__func)(void *), void *__arg, int __priority,
-                    void *__stack, size_t __stack_size) {
+inline _ETK_API_INTERNAL int __etk_thread_create(
+    __etk_thread_t* __t,
+    const char* __name,
+    void* (*__func)(void*),
+    void* __arg,
+    int __priority,
+    void* __stack,
+    size_t __stack_size) {
     // Initialize the thread attributes
     pthread_attr_t attr;
     int __ec = pthread_attr_init(&attr);
@@ -100,8 +104,8 @@ __etk_thread_create(__etk_thread_t *__t, const char *__name,
     return 0;
 }
 
-inline _ETK_API_INTERNAL const char *
-__etk_thread_get_name(const __etk_thread_t *__t) {
+inline _ETK_API_INTERNAL const char*
+__etk_thread_get_name(const __etk_thread_t* __t) {
     return __t->__name_;
 }
 
@@ -109,23 +113,27 @@ inline _ETK_API_INTERNAL __etk_thread_id __etk_thread_get_current_id() {
     return pthread_self();
 }
 
-inline _ETK_API_INTERNAL int __etk_thread_join(__etk_thread_t *__t) {
+inline _ETK_API_INTERNAL int __etk_thread_join(__etk_thread_t* __t) {
     return pthread_join(__t->__t_, nullptr);
 }
 
-inline _ETK_API_INTERNAL int __etk_thread_detach(__etk_thread_t *__t) {
-    return pthread_detach(__t->__t_);
+inline _ETK_API_INTERNAL int __etk_thread_detach(__etk_thread_t* __t) {
+    (void)__t;
+    return 0; // TODO: Is this correct?
+    // return pthread_detach(__t->__t_);
 }
 
-inline _ETK_API_INTERNAL int __etk_thread_cancel(__etk_thread_t *__t) {
-    return pthread_cancel(__t->__t_);
+inline _ETK_API_INTERNAL int __etk_thread_cancel(__etk_thread_t* __t) {
+    (void)__t;
+    return 0; // TODO: Is this correct?
+    // return pthread_cancel(__t->__t_);
 }
 
-inline _ETK_API_INTERNAL void __etk_thread_entry(__etk_thread_t *__t) {
+inline _ETK_API_INTERNAL void __etk_thread_entry(__etk_thread_t* __t) {
     (void)__t;
 }
 
-inline _ETK_API_INTERNAL void __etk_thread_exit(__etk_thread_t *__t) {
+inline _ETK_API_INTERNAL void __etk_thread_exit(__etk_thread_t* __t) {
     (void)__t;
 }
 
@@ -144,10 +152,10 @@ inline _ETK_API_INTERNAL void __etk_thread_time_start() {
 inline _ETK_API_INTERNAL unsigned int __etk_thread_time_get() {
     clock_gettime(CLOCK_MONOTONIC, &__etk_end_time);
     long __seconds = __etk_end_time.tv_sec - __etk_start_time.tv_sec;
-    long __ns = __etk_end_time.tv_nsec - __etk_start_time.tv_nsec;
+    long __ns      = __etk_end_time.tv_nsec - __etk_start_time.tv_nsec;
     return __seconds * 1000 + __ns / 1000000;
 }
 
 _ETK_END_NAMESPACE_ETK
 
-#endif // _ETK___THREAD_SUPPORT_APPLE_H_
+#endif // _ETK___THREAD_SUPPORT_PTHREAD_H_

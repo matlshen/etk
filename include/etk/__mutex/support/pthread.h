@@ -1,5 +1,5 @@
-#ifndef _ETK___MUTEX_SUPPORT_APPLE_H_
-#define _ETK___MUTEX_SUPPORT_APPLE_H_
+#ifndef _ETK___MUTEX_SUPPORT_PTHREAD_H_
+#define _ETK___MUTEX_SUPPORT_PTHREAD_H_
 
 #include <pthread.h>
 
@@ -11,7 +11,7 @@ _ETK_BEGIN_NAMESPACE_ETK
 typedef pthread_mutex_t __etk_mutex_t;
 #define _ETK_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
 
-inline _ETK_API_INTERNAL int __etk_mutex_init(__etk_mutex_t *__m) {
+inline _ETK_API_INTERNAL int __etk_mutex_init(__etk_mutex_t* __m) {
     pthread_mutexattr_t __attr;
     int __ec = pthread_mutexattr_init(&__attr);
     if (__ec)
@@ -34,26 +34,27 @@ inline _ETK_API_INTERNAL int __etk_mutex_init(__etk_mutex_t *__m) {
     return 0;
 }
 
-inline _ETK_API_INTERNAL int __etk_mutex_lock(__etk_mutex_t *__m) {
+inline _ETK_API_INTERNAL int __etk_mutex_lock(__etk_mutex_t* __m) {
     return pthread_mutex_lock(__m);
 }
 
-inline _ETK_API_INTERNAL bool __etk_mutex_trylock(__etk_mutex_t *__m) {
+inline _ETK_API_INTERNAL bool __etk_mutex_trylock(__etk_mutex_t* __m) {
     return pthread_mutex_trylock(__m) == 0;
 }
 
-inline _ETK_API_INTERNAL int __etk_mutex_unlock(__etk_mutex_t *__m) {
+inline _ETK_API_INTERNAL int __etk_mutex_unlock(__etk_mutex_t* __m) {
     return pthread_mutex_unlock(__m);
 }
 
-inline _ETK_API_INTERNAL int __etk_mutex_destroy(__etk_mutex_t *__m) {
+inline _ETK_API_INTERNAL int __etk_mutex_destroy(__etk_mutex_t* __m) {
     return pthread_mutex_destroy(__m);
 }
 
 typedef pthread_mutex_t __etk_recursive_mutex_t;
 #define _ETK_RECURSIVE_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
 
-inline _ETK_API_INTERNAL int __etk_recursive_mutex_init(__etk_recursive_mutex_t *__m) {
+inline _ETK_API_INTERNAL int
+__etk_recursive_mutex_init(__etk_recursive_mutex_t* __m) {
     pthread_mutexattr_t __attr;
     int __ec = pthread_mutexattr_init(&__attr);
     if (__ec)
@@ -77,25 +78,25 @@ inline _ETK_API_INTERNAL int __etk_recursive_mutex_init(__etk_recursive_mutex_t 
 }
 
 inline _ETK_API_INTERNAL int
-__etk_recursive_mutex_lock(__etk_recursive_mutex_t *__m) {
+__etk_recursive_mutex_lock(__etk_recursive_mutex_t* __m) {
     return pthread_mutex_lock(__m);
 }
 
 inline _ETK_API_INTERNAL bool
-__etk_recursive_mutex_trylock(__etk_recursive_mutex_t *__m) {
+__etk_recursive_mutex_trylock(__etk_recursive_mutex_t* __m) {
     return pthread_mutex_trylock(__m) == 0;
 }
 
 inline _ETK_API_INTERNAL int
-__etk_recursive_mutex_unlock(__etk_recursive_mutex_t *__m) {
+__etk_recursive_mutex_unlock(__etk_recursive_mutex_t* __m) {
     return pthread_mutex_unlock(__m);
 }
 
 inline _ETK_API_INTERNAL int
-__etk_recursive_mutex_destroy(__etk_recursive_mutex_t *__m) {
+__etk_recursive_mutex_destroy(__etk_recursive_mutex_t* __m) {
     return pthread_mutex_destroy(__m);
 }
 
 _ETK_END_NAMESPACE_ETK
 
-#endif // _ETK___MUTEX_SUPPORT_APPLE_H_
+#endif // _ETK___MUTEX_SUPPORT_PTHREAD_H_

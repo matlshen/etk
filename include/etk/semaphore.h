@@ -15,7 +15,7 @@ public:
     void acquire();
     bool try_acquire();
 
-    size_t count();
+    size_t max();
 };
 
 using binary_semaphore = counting_semaphore<1>;
@@ -24,7 +24,7 @@ using binary_semaphore = counting_semaphore<1>;
 
 */
 
-#include "etk/__semaphore/counting_semaphore.h"
 #include "etk/__semaphore/binary_semaphore.h"
+#include "etk/__semaphore/counting_semaphore.h"
 
 #endif // __ETK_SEMAPHORE_H_

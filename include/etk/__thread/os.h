@@ -15,7 +15,7 @@ void time_start();
 
 unsigned int time_get();
 
-} // namespace this_thread
+} // namespace os
 
 _ETK_END_NAMESPACE_ETK
 

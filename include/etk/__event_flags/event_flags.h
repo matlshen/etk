@@ -2,12 +2,12 @@
 #define _ETK___EVENT_FLAG_EVENT_FLAGS_H_
 
 #if defined(_ETK_HAS_NATIVE_EVTFLG)
-#include "etk/__condition_variable/support.h"
+#    include "etk/__condition_variable/support.h"
 #else
-#include "etk/__condition_variable/condition_variable.h"
-#include "etk/__config.h"
-#include "etk/__mutex/mutex.h"
-#include "etk/__mutex/unique_lock.h"
+#    include "etk/__condition_variable/condition_variable.h"
+#    include "etk/__config.h"
+#    include "etk/__mutex/mutex.h"
+#    include "etk/__mutex/unique_lock.h"
 #endif
 #include <cstdint>
 
@@ -18,29 +18,22 @@ _ETK_BEGIN_NAMESPACE_ETK
 #if defined(_ETK_HAS_NATIVE_EVTFLG)
 
 class event_flags {
-private:
+  private:
     __etk_event_flags_t _flags;
-public:
+
+  public:
     enum mode {
         wait_any,
         wait_all,
     };
 
-    explicit event_flags() {
-        ASSERT_0(event_flags_create(&_flags));
-    }
+    explicit event_flags() { ASSERT_0(event_flags_create(&_flags)); }
 
-    ~event_flags() {
-        ASSERT_0(event_flags_destroy(&_flags));
-    }
+    ~event_flags() { ASSERT_0(event_flags_destroy(&_flags)); }
 
-    void set(uint32_t flags) {
-        ASSERT_0(event_flags_set(&_flags, flags));
-    }
+    void set(uint32_t flags) { ASSERT_0(event_flags_set(&_flags, flags)); }
 
-    void clear(uint32_t flags) {
-        ASSERT_0(event_flags_clear(&_flags, flags));
-    }
+    void clear(uint32_t flags) { ASSERT_0(event_flags_clear(&_flags, flags)); }
 
     uint32_t wait(uint32_t flags, mode wait_mode) {
         uint32_t flags_set;
@@ -66,7 +59,7 @@ class event_flags {
     condition_variable _cv;
 
   public:
-    event_flags() = default;
+    event_flags()  = default;
     ~event_flags() = default;
 
     void set(uint32_t flags) {

@@ -25,13 +25,19 @@ _ETK_END_NAMESPACE_ETK
 */
 
 #include "etk/__config.h"
+#include <stddef.h>
 
 #if defined(_ETK_HAS_THREAD_API_PTHREAD)
-STATIC_ASSERT(false, "Pthread semaphore not implemented");
+#    include <semaphore>
+_ETK_BEGIN_NAMESPACE_ETK
+template <size_t MaxCount>
+using counting_semaphore = std::counting_semaphore<MaxCount>;
+using binary_semaphore   = counting_semaphore<1>;
+_ETK_END_NAMESPACE_ETK
 #elif defined(_ETK_HAS_THREAD_API_APPLE)
-#define _ETK_HAS_NO_NATIVE_SEMAPHORE
+#    define _ETK_HAS_NO_NATIVE_SEMAPHORE
 #elif defined(_ETK_HAS_THREAD_API_THREADX)
-#include "etk/__semaphore/support/threadx.h"
+#    include "etk/__semaphore/support/threadx.h"
 #else
 STATIC_ASSERT(false, "No semaphore implementation found");
 #endif

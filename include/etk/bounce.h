@@ -2,9 +2,9 @@
 #define _ETK_BOUNCE_H_
 
 template <class T, class Method, Method m, class... Params>
-static auto bounce(void *priv, Params... params)
-    -> decltype(((*reinterpret_cast<T *>(priv)).*m)(params...)) {
-    return ((*reinterpret_cast<T *>(priv)).*m)(params...);
+static auto bounce(void* priv, Params... params)
+    -> decltype(((*reinterpret_cast<T*>(priv)).*m)(params...)) {
+    return ((*reinterpret_cast<T*>(priv)).*m)(params...);
 }
 
 /**

@@ -16,8 +16,8 @@ class mutex {
     ~mutex() noexcept { ASSERT_0(__etk_mutex_destroy(&__m_)); }
 
     // Do not allow copying
-    mutex(const mutex &) = delete;
-    mutex &operator=(const mutex &) = delete;
+    mutex(const mutex&)            = delete;
+    mutex& operator=(const mutex&) = delete;
 
     void lock() { ASSERT_0(__etk_mutex_lock(&__m_)); }
 
@@ -25,7 +25,7 @@ class mutex {
 
     void unlock() { ASSERT_0(__etk_mutex_unlock(&__m_)); }
 
-    typedef __etk_mutex_t *native_handle_type;
+    typedef __etk_mutex_t* native_handle_type;
     native_handle_type native_handle() noexcept { return &__m_; }
 };
 

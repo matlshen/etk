@@ -80,7 +80,8 @@ TEST_F(MessageQueueTest, TestMultipleProducers) {
         etk::thread(sendFunc, std::ref(mq), 1),
         etk::thread(sendFunc, std::ref(mq), 2),
         etk::thread(sendFunc, std::ref(mq), 3),
-        etk::thread(sendFunc, std::ref(mq), 4)};
+        etk::thread(sendFunc, std::ref(mq), 4)
+    };
     etk::thread consumer(receiveFuncMult, std::ref(mq), std::ref(global));
 
     for (auto &t : producers) {
