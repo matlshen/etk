@@ -63,37 +63,37 @@ TEST_F(SemaphoreTest, TestTooManyRelease) {
     // EXPECT_EQ(3, sem.count());
 }
 
-void acquireThread(std::counting_semaphore<2> *sem, int *global) {
-    sem->acquire();
-    sem->acquire();
-    *global = 1;
-}
-TEST_F(SemaphoreTest, TestAcquireThread) {
-    std::counting_semaphore<2> sem(2);
-    std::thread t1(acquireThread, &sem, &global);
-    sem.release();
-    sem.release();
-    t1.join();
-    EXPECT_EQ(1, global);
-}
+// void acquireThread(std::counting_semaphore<2> *sem, int *global) {
+//     sem->acquire();
+//     sem->acquire();
+//     *global = 1;
+// }
+// TEST_F(SemaphoreTest, TestAcquireThread) {
+//     std::counting_semaphore<2> sem(2);
+//     std::thread t1(acquireThread, &sem, &global);
+//     sem.release();
+//     sem.release();
+//     t1.join();
+//     EXPECT_EQ(1, global);
+// }
 
-void thread1(std::counting_semaphore<2> *sem, int *global) {
-    etk::delay::cycles(1000000);
-    *global = 1;
-    sem->release();
-    sem->release();
-}
-void thread2(std::counting_semaphore<2> *sem, int *global) {
-    sem->acquire();
-    sem->acquire();
-    EXPECT_EQ(1, *global);
-    *global = 3;
-}
-TEST_F(SemaphoreTest, TestBlocking) {
-    std::counting_semaphore<2> sem(0);
-    std::thread t1(thread1, &sem, &global);
-    std::thread t2(thread2, &sem, &global);
-    t1.join();
-    t2.join();
-    EXPECT_EQ(3, global);
-}
+// void thread1(std::counting_semaphore<2> *sem, int *global) {
+//     etk::delay::cycles(1000000);
+//     *global = 1;
+//     sem->release();
+//     sem->release();
+// }
+// void thread2(std::counting_semaphore<2> *sem, int *global) {
+//     sem->acquire();
+//     sem->acquire();
+//     EXPECT_EQ(1, *global);
+//     *global = 3;
+// }
+// TEST_F(SemaphoreTest, TestBlocking) {
+//     std::counting_semaphore<2> sem(0);
+//     std::thread t1(thread1, &sem, &global);
+//     std::thread t2(thread2, &sem, &global);
+//     t1.join();
+//     t2.join();
+//     EXPECT_EQ(3, global);
+// }

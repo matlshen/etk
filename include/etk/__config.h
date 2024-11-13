@@ -2,6 +2,19 @@
 #define __LIBEXPP___CONFIG_H_
 
 /**
+ * Assert configurations
+ * - None, no assertions
+ * - Break, break into debugger
+ * - PC, print PC and break into debugger
+ * - Verbose, print expression and location and break into debugger
+ */
+// #define _ETK_ASSERT_NONE
+// #define ASSERT_BREAK
+// #define _ETK_ASSERT_PC
+#define _ETK_ASSERT_VERBOSE
+
+
+/**
  * Print configuations
  * Currently supported print APIs:
  * - None
@@ -14,7 +27,7 @@
 /**
  * Memory management configurations
  * Currently supported memory management APIs:
- * - None
+ * - None, no memory allocator
  * - Stdlib, standard C memory management API
  * - ThreadX, tx_byte_pool API
  */

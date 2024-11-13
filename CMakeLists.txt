@@ -5,7 +5,7 @@ project(etk LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 option(BUILD_ETK_TESTS "Build unit tests" ON)
-option(BUILD_ETK_EXAMPLES "Build examples" OFF)
+option(BUILD_ETK_EXAMPLES "Build examples" ON)
 option(INTERNAL_ASSERTIONS "Enable internal assertions" ON)
 
 Include(FetchContent)

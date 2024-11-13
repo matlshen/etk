@@ -1,41 +1,35 @@
-#include <iostream>
+#include <gtest/gtest.h>
+#include "etk/print.h"
 
-/* 
-Device driver I/O operations
--I/O initialization: external to driver
--I/O read/write: override virtual function
--Interrupt handling: call function callback from IRQ
-*/
+TEST(ExampleTest, Example) {
+    EXPECT_EQ(1, 1);
+}
 
+TEST(ExampleTest, Example2) {
+    EXPECT_EQ(1, 1);
+}
 
-class fake_mutex {
-public:
-    void lock() {
-        std::cout << "fake_mutex::lock()" << std::endl;
+class TestPrinter : public ::testing::EmptyTestEventListener {
+    virtual void OnTestStart(const ::testing::TestInfo& test_info) {
+        printf("*** Test [%s.%s] starting...\n",
+            test_info.test_suite_name(), test_info.name());
     }
-    void unlock() {}
-};
-
-template <class _Mutex>
-class unique_lock {
-public:
-
-
-    _Mutex m;
-    void do_lock() {
-        m.lock();
-    }
-
-    void do_unlock() {
-        m.unlock();
+    virtual void OnTestEnd(const ::testing::TestInfo& test_info) {
+        if (test_info.result()->Passed()) {
+            printf("    Passed.\n");
+        } else
+        if (test_info.result()->Failed()) {
+            printf("    Failed.\n");
+        }
     }
 };
 
-int main() {
-    unique_lock<fake_mutex> lock;
-    lock.do_lock();
-    lock.do_unlock();
+int main(int argc, char **argv) {
+    testing::InitGoogleTest(&argc, argv);
 
+    testing::TestEventListeners& listeners = testing::UnitTest::GetInstance()->listeners();
+    delete listeners.Release(listeners.default_result_printer());
+    listeners.Append(new TestPrinter);
 
-    return 0;
+    return RUN_ALL_TESTS();
 }

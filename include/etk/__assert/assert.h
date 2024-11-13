@@ -1,82 +1,63 @@
-#ifndef __ETK___ASSERT_ASSERT_H_
-#define __ETK___ASSERT_ASSERT_H_
+#ifndef _ETK___ASSERT_ASSERT_H_
+#define _ETK___ASSERT_ASSERT_H_
 
-// #include "etk/__assert/support.h"
+#include "debugbreak.h"
 #include "etk/__config.h"
-#include "etk/print.h"
+#include "etk/__print/print.h"
+#include "getpc.h"
+
+#define STRINGIFY(x) #x
+#define TO_STRING(x) STRINGIFY(x)
 
 _ETK_BEGIN_NAMESPACE_ETK
 
-// Assertion wrapper class
-struct __Assert {
-    static _ETK_API_INTERNAL void
-    api_assert(int expr, const char* msg, const char* file, const char* line) {
-        //__etk_assert(expr, msg, file, line);
-        if (!expr) {
-            etk::printf("Assertion failed: %s :%s: %s\n", msg, file, line);
-        }
+class __assertion_helper {
+  public:
+    static void __assert_minimal() { debug_break(); }
+
+    static inline void __assert_pc(const char* line, void* assert_pc) {
+        etk::printf("*** ASSERTION FAILED ***\n\tLine: %s\n\tPC: 0x%08lx\n",
+                    line,
+                    reinterpret_cast<uintptr_t>(assert_pc));
+        debug_break();
     }
 
-    static _ETK_API_INTERNAL void api_expect(
-        long expr,
-        const char* op,
-        long val,
-        long expected,
-        const char* file,
-        const char* line) {
-        // __etk_expect(expr, expected, val, op, file, line);
-        if (!expr) {
-            etk::printf("Expected %s%ld, got %ld :%s: %s\n",
-                        op,
-                        expected,
-                        val,
-                        file,
-                        line);
-        }
-    }
-
-    static _ETK_API_INTERNAL void api_assert_fail(
-        int expr, const char* msg, const char* file, const char* line) {
-        //__etk_conditional_abort(__etk_assert(expr, msg, file, line));
-        bool condition = static_cast<bool>(expr);
-        if (!condition) {
-            etk::printf("Assertion failed: %s :%s: %s\n", msg, file, line);
-            // TODO: Add platform-specific abort
-        }
-    }
-
-    static _ETK_API_INTERNAL void api_expect_fail(
-        long expr,
-        const char* op,
-        long val,
-        long expected,
-        const char* file,
-        const char* line) {
-        // __etk_conditional_abort(
-        //     __etk_expect(expr, expected, val, op, file, line));
-        bool condition = static_cast<bool>(expr);
-        if (!condition) {
-            etk::printf("Expected %s%ld, got %ld :%s: %s\n",
-                        op,
-                        expected,
-                        val,
-                        file,
-                        line);
-        }
+    static inline void
+    __assert_verbose(const char* expr, const char* file, const char* line) {
+        etk::printf("*** ASSERTION FAILED ***\n\tExpression:\t%s\n\t%s: %s\n",
+                    expr,
+                    file,
+                    line);
+        debug_break();
     }
 };
 
-// Helper macros to temporarily store evaluated values
-#define __ASSERT_EVAL(expected, val)                                           \
-    {                                                                          \
-        long __expected_val = static_cast<long>(expected);                     \
-        long __got_val      = static_cast<long>(val);                          \
-        (void)__expected_val;                                                  \
-        (void)__got_val;
-#define __ASSERT_EXPECTED __expected_val
-#define __ASSERT_VAL __got_val
-#define __ASSERT_EVAL_END }
-
 _ETK_END_NAMESPACE_ETK
 
-#endif // __ETK___ASSERT_ASSERT_H_
+#if defined(_ETK_ASSERT_NONE)
+#    define ASSERT(expr) (void)(expr)
+#elif defined(ASSERT_BREAK)
+#    define ASSERT(expr)                                                       \
+        if (!(expr)) {                                                         \
+            etk::__assertion_helper::__assert_minimal();                       \
+        }
+#elif defined(_ETK_ASSERT_PC)
+#    define ASSERT(expr)                                                       \
+        if (!(expr)) {                                                         \
+            etk::__assertion_helper::__assert_pc(                              \
+                TO_STRING(__LINE__), GET_PC());                                \
+        }
+#elif defined(_ETK_ASSERT_VERBOSE)
+#    define ASSERT(expr)                                                       \
+        if (!(expr)) {                                                         \
+            etk::__assertion_helper::__assert_verbose(                         \
+                #expr, __FILE__, TO_STRING(__LINE__));                         \
+        }
+#else
+#    error "No assert configuration defined"
+#endif
+
+#define STATIC_ASSERT_MSG(expr, msg) static_assert(expr, msg)
+#define STATIC_ASSERT(expr) static_assert(expr, #expr)
+
+#endif // _ETK___ASSERT_ASSERT_H_
