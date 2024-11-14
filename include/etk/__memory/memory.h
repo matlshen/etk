@@ -3,7 +3,8 @@
 
 #include "etk/__config.h"
 #include "etk/__memory/support.h"
-#include "etk/assert.h"
+#include "etk/__assert/assert.h"
+#include <cstring>
 
 _ETK_BEGIN_NAMESPACE_ETK
 
@@ -12,10 +13,11 @@ _ETK_BEGIN_NAMESPACE_ETK
  * Subsequient calls to malloc() are passed
  */
 class memory {
-    static inline __etk_mempool_t _mempool{_ETK_MEMPOOL_INITIALIZER};
+    static inline __etk_mempool_t _mempool;
 
     static void* init(size_t size) {
-        ASSERT_0(__etk_mempool_init(&_mempool, size));
+        (void)size;
+        ASSERT(__etk_mempool_init(&_mempool, _ETK_HEAP_SIZE) == 0);
         _malloc_ptr = internal_malloc;
         return __etk_malloc(&_mempool, size);
     }

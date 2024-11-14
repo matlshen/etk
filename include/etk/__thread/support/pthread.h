@@ -33,10 +33,12 @@ __etk_thread_id_less(__etk_thread_id __t1, __etk_thread_id __t2) {
 //
 // Thread
 //
-#define _ETK_NULL_THREAD ((__etk_thread_t){{}, ""})
+#define _ETK_NULL_THREAD 0
 struct __etk_thread_t {
     pthread_t __t_;
     const char* __name_;
+
+    __etk_thread_t() : __t_(0), __name_(nullptr) {}
 };
 
 inline _ETK_API_INTERNAL __etk_thread_id

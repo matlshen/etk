@@ -15,7 +15,7 @@ struct __etk_mempool_t {
 
 inline int __etk_mempool_init(__etk_mempool_t* mempool, size_t size) {
     return tx_byte_pool_create(
-        &mempool->pcb, "etk mempool", (void*)mempool->buffer, _ETK_HEAP_SIZE);
+        &mempool->pcb, (CHAR*)"etk mempool", (void*)mempool->buffer, size);
 }
 
 inline void* __etk_malloc(__etk_mempool_t* mempool, size_t size) {

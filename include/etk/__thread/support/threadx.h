@@ -56,7 +56,7 @@ __etk_thread_id_less(__etk_thread_id __t1, __etk_thread_id __t2) {
     { 0 }
 struct tx_thread_t {
     TX_THREAD __t;
-    TX_MUTEX __m;
+    TX_SEMAPHORE __s;
 };
 typedef tx_thread_t __etk_thread_t;
 
@@ -72,10 +72,14 @@ inline _ETK_API_INTERNAL int __etk_thread_create(
     int __priority,
     void* __stack,
     size_t __stack_size) {
-    tx_mutex_create(&__t->__m, (char*)"", TX_NO_INHERIT);
+    int retval = TX_SUCCESS;
+    retval = tx_semaphore_create(&__t->__s, (CHAR*)"", 0);
+    if (retval != TX_SUCCESS) {
+        return retval;
+    }
     return tx_thread_create(
         &__t->__t,
-        (char*)__name,
+        (CHAR*)__name,
         __func,
         (ULONG)__arg,
         __stack,
@@ -100,7 +104,7 @@ __etk_thread_get_id(const __etk_thread_t* __t) {
 }
 
 inline _ETK_API_INTERNAL int __etk_thread_join(__etk_thread_t* __t) {
-    return tx_mutex_get(&__t->__m, TX_WAIT_FOREVER);
+    return tx_semaphore_get(&__t->__s, TX_WAIT_FOREVER);
 }
 
 inline _ETK_API_INTERNAL int __etk_thread_detach(__etk_thread_t* __t) {
@@ -109,15 +113,24 @@ inline _ETK_API_INTERNAL int __etk_thread_detach(__etk_thread_t* __t) {
 }
 
 inline _ETK_API_INTERNAL int __etk_thread_cancel(__etk_thread_t* __t) {
-    return tx_thread_terminate(&__t->__t);
+    int retval = TX_SUCCESS;
+    retval = tx_semaphore_delete(&__t->__s);
+    if (retval != TX_SUCCESS) {
+        return retval;
+    }
+    retval =  tx_thread_terminate(&__t->__t);
+    if (retval != TX_SUCCESS) {
+        return retval;
+    }
+    return tx_thread_delete(&__t->__t);
 }
 
 inline _ETK_API_INTERNAL void __etk_thread_entry(__etk_thread_t* __t) {
-    tx_mutex_get(&__t->__m, TX_WAIT_FOREVER);
+    (void)__t;
 }
 
 inline _ETK_API_INTERNAL void __etk_thread_exit(__etk_thread_t* __t) {
-    tx_mutex_put(&__t->__m);
+    tx_semaphore_put(&__t->__s);
 }
 
 //

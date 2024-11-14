@@ -14,10 +14,6 @@ void __etk_free(__etk_mempool_t*, void*);
 
 #include "etk/__config.h"
 
-#if !defined(_ETK_HEAP_SIZE)
-#    error "_ETK_HEAP_SIZE not defined"
-#endif
-
 #if defined(_ETK_HAS_MEMORY_API_STDLIB)
 #    include "etk/__memory/support/stdlib.h"
 #elif defined(_ETK_HAS_MEMORY_API_THREADX)

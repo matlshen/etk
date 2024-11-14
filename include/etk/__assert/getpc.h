@@ -14,6 +14,9 @@ extern "C" {
 
 #if defined(__aarch64__) && defined(__APPLE__)
 	#define GET_PC() __builtin_return_address(0)
+#elif defined(__thumb__)
+	// This is ARM and GCC specific
+	#define GET_PC(_a) __asm volatile ("mov %0, pc" : "=r" (_a))
 #endif
 
 #ifdef __cplusplus

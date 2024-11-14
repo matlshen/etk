@@ -6,7 +6,6 @@
 
 namespace etk {
 
-template <size_t StackSize = 1024>
 class thread {
 public:
     class id;
@@ -15,11 +14,13 @@ public:
     explicit thread(F&& f, Args&&... args) noexcept;
 
     template <class F, class ...Args>
-    explicit thread(priority prio, F&& f, Args&&... args) noexcept;
+    explicit thread(priority prio, size_t stack_size, 
+                    F&& f, Args&&... args) noexcept;
 
     template <class F, class ...Args>
     explicit thread(const char *name,
-                    priority prio, F&& f, Args&&... args) noexcept;
+                    priority prio, size_t stack_size, 
+                    F&& f, Args&&... args) noexcept;
 
     ~thread();
 

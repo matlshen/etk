@@ -36,7 +36,7 @@ _ETK_END_NAMESPACE_ETK
 
 #if defined(_ETK_ASSERT_NONE)
 #    define ASSERT(expr) (void)(expr)
-#elif defined(ASSERT_BREAK)
+#elif defined(_ETK_ASSERT_BREAK)
 #    define ASSERT(expr)                                                       \
         if (!(expr)) {                                                         \
             etk::__assertion_helper::__assert_minimal();                       \
@@ -44,8 +44,9 @@ _ETK_END_NAMESPACE_ETK
 #elif defined(_ETK_ASSERT_PC)
 #    define ASSERT(expr)                                                       \
         if (!(expr)) {                                                         \
-            etk::__assertion_helper::__assert_pc(                              \
-                TO_STRING(__LINE__), GET_PC());                                \
+            void* pc;                                                          \
+            GET_PC(pc);                                                        \
+            etk::__assertion_helper::__assert_pc(TO_STRING(__LINE__), pc);     \
         }
 #elif defined(_ETK_ASSERT_VERBOSE)
 #    define ASSERT(expr)                                                       \

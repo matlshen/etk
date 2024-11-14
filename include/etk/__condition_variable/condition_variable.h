@@ -40,8 +40,50 @@ class condition_variable {
 };
 
 #else
-// TODO: Implement this
-STATIC_ASSERT(false, "No condition variable implementation available");
+
+#include "etk/__semaphore/counting_semaphore.h"
+
+class condition_variable {
+    counting_semaphore _cond_sem(0);
+    int _type;
+    bool _in_use{true};
+public:
+    condition_variable() = default;
+    condition_variable(const condition_variable&) = delete;
+
+    ~condition_variable() {
+        if (_in_use == false) {
+            ASSERT_UNREACHABLE();
+        }
+    }
+
+    void notify_one() {
+        _cond_sem.release();
+    }
+
+    void notify_all() {
+        int sem_count = _cond_sem.count();
+        while (sem_count > 0) {
+            _cond_sem.release();
+            sem_count--;
+        }
+    }
+
+    void wait(unique_lock<mutex>& lock) {
+        ASSERT(lock.owns_lock());
+        lock.unlock();
+        _cond_sem.acquire();
+        lock.lock();
+    }
+
+    template <class Predicate>
+    void wait(unique_lock<mutex>& lock, Predicate pred) {
+        while (!pred()) {
+            wait(lock);
+        }
+    }
+};
+
 #endif
 
 _ETK_END_NAMESPACE_ETK
